@@ -1,0 +1,29 @@
+/* src/components/Navbar.css */
+
+.search-container {
+  display: flex;
+  align-items: center;
+  transition: flex 0.3s; /* Smooth transition for flex changes */
+}
+
+.search-container.active {
+  flex: 1; /* Make the search input take more space when active */
+  justify-content: center; /* Center the input in the navbar */
+}
+
+.search-container .ui.input {
+  transition: width 0.3s ease; /* Smooth transition for width */
+  width: 0; /* Start with 0 width */
+  opacity: 0; /* Start with hidden input */
+}
+
+.search-container.active .ui.input {
+  width: 300px; /* Width when active */
+  opacity: 1; /* Fade in effect */
+}
+
+.ui.input .icon {
+  cursor: pointer; /* Pointer cursor for the icon */
+  margin-left: -30px; /* Adjust margin if the icon overlaps */
+  z-index: 1; /* Ensure the icon is above the input */
+}
