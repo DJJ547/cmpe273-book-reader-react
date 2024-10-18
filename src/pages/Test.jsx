@@ -11,7 +11,7 @@ export default function Test() {
       <TestGoogleAuth />
       <TestSearchBox />
       <TestSearchBoxPagination />
-      <TestGetSpecificBooks genre="Popular Books" maxResults={15} />
+      <TestGetSpecificBooks genre="Science & Technology" maxResults={15} />
       <TestGetSpecificBooks genre="Bestsellers" maxResults={15} />
       <TestGetBookReviews />
     </div>
