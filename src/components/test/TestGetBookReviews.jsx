@@ -14,7 +14,7 @@ const TestGetBookReviews = () => {
   const fetchBookReviews = async () => {
     try {
       const response = await fetch(
-        `${api_url}api/get-book-reviews/?title=${bookTitle}`
+        `${api_url}api/get-book-reviews?title=${bookTitle}`
       );
       const data = await response.json();
       if (data.reviews) {
