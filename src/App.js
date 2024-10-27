@@ -14,12 +14,14 @@ import Test from "./pages/Test";
 import Login from "./pages/auth/Login";
 // import Signup from "./pages/auth/Signup";
 import BookList from "./pages/BookList";
+import TestBookContent from "./components/test/TestBookContent"
 
 export default function App() {
   return (
     <div>
       <Routes>
         <Route path="/test" element={<Test />} />
+        <Route path="/book/:id" element={<TestBookContent />} />
         {/* <Route path="/auth/login" element={<Login />} /> */}
         <Route path="/book-lists" element={<BookList />} />
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
