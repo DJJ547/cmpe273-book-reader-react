@@ -10,9 +10,9 @@ root.render(
   <React.StrictMode>
     <Router>
       {/* If using Google OAuth, wrap the App with GoogleOAuthProvider */}
-    <GoogleOAuthProvider clientId="606148332855-99f34fqns59clmeghqaqgdvje9jlpu4a.apps.googleusercontent.com">
-    <App />
-  </GoogleOAuthProvider>
+      <GoogleOAuthProvider clientId="606148332855-99f34fqns59clmeghqaqgdvje9jlpu4a.apps.googleusercontent.com">
+      <App />
+      </GoogleOAuthProvider>
     </Router> 
 </React.StrictMode>
 );

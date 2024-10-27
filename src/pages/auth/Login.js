@@ -10,6 +10,7 @@ import {
   Divider,
   Header,
 } from "semantic-ui-react";
+import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -39,6 +40,7 @@ const Login = () => {
   
   return (
     <div className="login-container">
+         <div className="overlay"></div> {/* Transparent overlay */}
       <Grid centered>
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header

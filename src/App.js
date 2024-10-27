@@ -14,19 +14,21 @@ import PageLayout from "./components/pageLayout/Navbar";
 import Test from "./pages/Test";
 // import Main from "./pages/Main";
 import Login from "./pages/auth/Login";
-// import Signup from "./pages/auth/Signup";
+import Signup from "./pages/auth/Signup";
 
 export default function App() {
   return (
     <div>
       <Routes>
         {/* <Route path="/test" element={<Test />} /> */}
-        <Route path="/auth/login" element={<Login />} />
-        {/* <Route path="/auth/signup" element={<Signup />} /> */}
+        <Route path="/auth/login" element={<Login/>} />
+        <Route path="/auth/signup" element={<Signup/>}/> 
         {/* <Route path="/" element={<Main />} /> */}
         {/* <Route path="/test" element={<Test />} /> */}
       </Routes>
     </div>
+
+    
   );
 }
 
