@@ -1,7 +1,40 @@
 import React from "react";
+import { useState } from "react";
 import SideBar from "../components/SideBar";
 
+
 export default function ReadingPage() {
+  const [background, setBackground] = useState("lightgreen");
+  const [font, setFont] = useState('Georgia, serif');
+  const [fontSize, setFontSize] = useState("1.2rem");
+  
+  const handleSettingsChange = (newBackground, newFont, newFontSize) => {
+    if (newBackground) setBackground(newBackground);
+    if (newFont) setFont(newFont);
+    if (newFontSize) setFontSize(newFontSize);
+  };
+  const backgroundStyles = {
+    lightyellow: "rgba(250, 248, 228, 0.7)",
+    lightblue: "rgba(173, 216, 230, 0.2)",
+    lightgreen: "rgba(144, 238, 144, 0.1)",
+    nightmode: "rgba(0, 0, 0, 0.9)",
+  };
+  const styles = {
+    container: {
+      backgroundColor: backgroundStyles[background],
+    },
+    content: {
+      backgroundColor: backgroundStyles[background],
+      minWidth: "410px",
+      maxWidth: "850px",
+      minHeight: "100vh",
+      width: "80%",
+      fontFamily: font,
+      fontSize: fontSize,
+      margin: "auto",
+      color: background === "nightmode" ? "white" : "black",
+    },
+  };
   return (
     <div style={styles.container}>
       <div
@@ -16,15 +49,15 @@ export default function ReadingPage() {
           }
         />
         <BodySection chapter={"Crimson"} content={content} />
-        <BottomBar />
+        <BottomBar color={styles.content.color}/>
       </div>
-      <SideBar />
+      <SideBar setting={handleSettingsChange}/>
     </div>
   );
 }
 
 const TopBar = () => (
-  <div className="flex items-center cursor-pointer font-bold">
+  <div className="flex items-center cursor-pointer text-base">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -65,8 +98,8 @@ const HeaderSection = ({ title, book_cover }) => (
 
 const BodySection = ({ chapter, content }) => (
   <div className="mt-10 p-4">
-    <div className="text-2xl font-semibold">Chapter 1: {chapter}</div>
-    <div className="text-justify text-lg mt-10">
+    <div className="font-semibold">Chapter 1: {chapter}</div>
+    <div className="mt-10">
       {content.map((paragraph, index) => (
         <p key={index} className="mb-5">
           {paragraph}
@@ -75,13 +108,13 @@ const BodySection = ({ chapter, content }) => (
     </div>
   </div>
 );
-const BottomBar = () => (
+const BottomBar = ({color}) => (
   <div className="flex justify-center mt-32">
     <div className="bg-mycolor flex justify-around items-center w-[400px] h-12 rounded-full shadow-md">
       {/* Previous Chapter Icon */}
-      <button className="text-gray-800 px-4 text-sm font-medium hover:scale-150">
+      <button className="text-white px-4 text-sm font-medium hover:scale-150">
         <svg
-          class="w-6 h-6 text-gray-800 dark:text-white"
+          className={`w-6 h-6 dark:text-white ${color==='black' ? "text-gray-800":"text-white"}`}
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -102,7 +135,7 @@ const BottomBar = () => (
       <div className="h-6 w-px bg-gray-300"></div>
 
       {/* Table of Contents Icon */}
-      <button className="text-gray-800 px-4 text-sm font-medium hover:scale-150">
+      <button className= {`px-4 text-sm font-medium hover:scale-150 ${color==='black' ? "text-gray-800":"text-white"}`}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -116,9 +149,9 @@ const BottomBar = () => (
       <div className="h-6 w-px bg-gray-300"></div>
 
       {/* Next Chapter Icon */}
-      <button className="text-gray-800 px-4 text-sm font-medium hover:scale-150">
+      <button className={`${color==='black' ? "text-gray-800":"text-white"} px-4 text-sm font-medium hover:scale-150`}>
         <svg
-          class="w-6 h-6 text-gray-800 dark:text-white"
+          className="w-6 h-6 dark:text-white"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -150,19 +183,3 @@ const content = [
   </p>,
   <p>He had just entered the library when he saw a familiar figure.</p>,
 ];
-
-const styles = {
-  container: {
-    backgroundColor: "rgba(206, 186, 164, 0.2)",
-  },
-  content: {
-    backgroundColor: "rgba(250, 248, 228, 0.7)",
-    minWidth: "400px",
-    maxWidth: "850px",
-    minHeight: "100vh",
-    width: "80%",
-    fontFamily: "Georgia, serif",
-    fontSize: "1.2rem",
-    margin: "auto",
-  },
-};
