@@ -103,9 +103,11 @@ const SearchPage = () => {
             </Grid>
           ))
         ) : (
-          <Typography variant="h6" style={{ color: "#888" }}>
-            No books found
-          </Typography>
+          <CardContent>
+            <Typography variant="h6" style={{ color: "#888" }}>
+              No books found
+            </Typography>
+          </CardContent>
         )}
       </Grid>
     </Container>

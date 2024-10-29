@@ -48,8 +48,8 @@ const BookDetails = () => {
   };
 
   const handleBack = () => {
-    // Navigate back to the Search Page with the query preserved
-    navigate(`/search?query=${query}`);
+    if (query === null) navigate(`/`);
+    else navigate(`/search?query=${query}`);
   };
 
   return (
