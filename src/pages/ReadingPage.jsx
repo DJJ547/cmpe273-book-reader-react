@@ -22,6 +22,7 @@ export default function ReadingPage() {
   const styles = {
     container: {
       backgroundColor: backgroundStyles[background],
+      display: "flex",
     },
     content: {
       backgroundColor: backgroundStyles[background],
@@ -51,7 +52,7 @@ export default function ReadingPage() {
         <BodySection chapter={"Crimson"} content={content} />
         <BottomBar color={styles.content.color}/>
       </div>
-      <SideBar setting={handleSettingsChange}/>
+      <SideBar setting={handleSettingsChange} nightmode={background === 'nightmode' ? true:false}/>
     </div>
   );
 }

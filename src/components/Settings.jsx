@@ -9,6 +9,7 @@ export default function Settings({ setting }) {
   const [selectedBackground, setSelectedBackground] = useState("lightyellow");
   const [selectedFont, setSelectedFont] = useState("Georgia, serif");
   const [selectedFontSize, setSelectedFontSize] = useState("1.2rem");
+  /* const textcolor = selectedBackground === "nightmode" ? true : false; */
 
   //close drawer when clicked outside
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function Settings({ setting }) {
     <div ref={drawerRef}>
       <button
         onClick={toggleDrawer}
-        className="flex aspect-square w-16 items-center justify-center hover:scale-110 active:scale-95 cursor-pointer transition-transform"
+        className={`flex aspect-square w-16 items-center justify-center hover:scale-110 active:scale-95 cursor-pointer transition-transform hover:text-red-400`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -67,8 +68,8 @@ export default function Settings({ setting }) {
       {drawer && (
         <div
           className={`fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
-            window.innerWidth < 600 ? "animate-fade-in-slide-up-from-bottom" : "animate-fade-in-slide-up"
-          } ${window.innerWidth < 600 ? "w-full" : "w-80"}`}
+            window.innerWidth < 768 ? "animate-fade-in-slide-up-from-bottom" : "animate-fade-in-slide-up"
+          } ${window.innerWidth < 768 ? "w-full" : "w-80"}`}
         >
           <h5 className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400">
             <svg
