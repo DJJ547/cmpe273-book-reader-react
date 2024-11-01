@@ -68,7 +68,7 @@ export default function Settings({ setting }) {
 
       {drawer && (
         <div
-          className={`fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
+          className={`fixed top-0 left-0 z-40 h-[70vh] p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
             window.innerWidth < 768 ? "animate-fade-in-slide-up-from-bottom" : "animate-fade-in-slide-up"
           } ${window.innerWidth < 768 ? "w-full" : "w-80"}`}
         >

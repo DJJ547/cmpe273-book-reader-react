@@ -106,8 +106,10 @@ const BodySection = ({ chapter, content }) => (
     </div>
   </div>
 );
-const BottomBar = ({color}) => (
-  <div className="flex justify-center mt-32">
+function BottomBar ({color}){
+  /* TO DO: implement buttons that go to previous, next chapters, and button that goes to book description page */
+  return (
+    <div className="flex justify-center mt-32">
     <div className="bg-mycolor flex justify-around items-center w-[400px] h-12 rounded-full shadow-md">
       {/* Previous Chapter Icon */}
       <button className="text-white px-4 text-sm font-medium hover:scale-150">
@@ -168,7 +170,8 @@ const BottomBar = ({color}) => (
       </button>
     </div>
   </div>
-);
+  );
+}
 
 const Bookinfo = {
   book_name: "Lord of Mysteries",
@@ -178,7 +181,23 @@ const Bookinfo = {
   content: [
     "With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow.",
     "Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.",
-    "He had just entered the library when he saw a familiar figure."
+    "He had just entered the library when he saw a familiar figure.",
+    "It was the young lady who had been reading the newspaper in the Blackthorn Security Company.",
+    "She was wearing a white shirt and a black skirt, looking very neat and tidy.",
+    "Klein walked over and greeted her with a smile.",
+    "The young lady looked up and returned the smile.",
+    "Klein asked, “Are you here to read the newspaper again?”",
+    "The young lady nodded and said, “Yes. I’m here to read the newspaper.”",
+    "Klein asked, “What’s so interesting about the newspaper?”",
+    "The young lady replied, “I’m looking for a job.”",
+    "Klein asked, “What kind of job are you looking for?”",
+    "The young lady replied, “I’m looking for a job as a secretary.”",
+    "Klein asked, “Do you have any experience as a secretary?”",
+    "The young lady replied, “No, but I’m a fast learner.”",
+    "Klein asked, “What’s your name?”",
+    "The young lady replied, “My name is Audrey.”",
+    "Klein asked, “Do you have a last name?”",
+    "The young lady replied, “No, I don’t have a last name.”",
   ],
   tableofcontents: Array.from({ length: 100 }, (_, i) => `Chapter ${i + 1}: Crimson`),
   favorited: true,

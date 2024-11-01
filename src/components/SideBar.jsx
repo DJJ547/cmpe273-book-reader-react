@@ -3,6 +3,7 @@ import "../assets/css/SideBar.css";
 import Settings from "./Settings";
 import TableofContents from "./TableofContents";
 import AddtoReadinglist from "./AddtoReadinglist";
+import TTS from "./TTS";
 
 const SideBar = ({setting, nightmode, Bookinfo}) => {
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(false);
@@ -39,7 +40,7 @@ const SideBar = ({setting, nightmode, Bookinfo}) => {
         <nav className="z-20 flex shrink-0 grow-0 justify-around gap-4 p-2.5 flex-col rounded-lg">
           <TableofContents TOC={Bookinfo.tableofcontents} />
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited}/>
-          <Settings setting={setting}/>
+          <TTS content={Bookinfo.content}/>
           <Settings setting={setting}/>
           <Settings setting={setting}/>
         </nav>
@@ -55,7 +56,7 @@ const SideBar = ({setting, nightmode, Bookinfo}) => {
         >
           <TableofContents TOC={Bookinfo.tableofcontents} />
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited} />
-          <Settings setting={setting}/>
+          <TTS content={Bookinfo.content}/>
           <Settings setting={setting}/>
           <Settings setting={setting}/>
         </nav>

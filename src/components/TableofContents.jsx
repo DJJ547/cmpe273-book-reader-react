@@ -45,7 +45,7 @@ export default function TableofContents({ TOC, book_name, current_chapter }) {
       <span className="tooltip-text">Open Table of Contents</span>
       {drawer && (
         <div
-          className={`flex flex-col fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
+          className={`flex flex-col fixed top-0 left-0 z-40 p-4 h-[70vh] overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
             window.innerWidth < 768
               ? "animate-fade-in-slide-up-from-bottom"
               : "animate-fade-in-slide-up"
@@ -94,13 +94,13 @@ export default function TableofContents({ TOC, book_name, current_chapter }) {
           </div>
 
           {/* table of contents of the book */}
-          <ul className="mt-3 overflow-auto">
+          <ul className="mt-3 overflow-y-auto">
             {TOC.map((chapter, index) => (
               <li key={index} className="mb-2">
                 <a
                   /* TO DO: change the link address to correspond correct link */
                   href={`#${chapter}`}
-                  className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:underline"
+                  className="text-gray-500 overflow-x-auto dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:underline"
                 >
                   {index+1}. {chapter}
                 </a>
