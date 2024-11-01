@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useState, useRef } from "react";
 import "../assets/css/SideBar.css";
+import "../assets/css/tooltip.css";
 
 export default function Settings({ setting }) {
   const [drawer, setDrawer] = useState(false);
@@ -9,7 +10,6 @@ export default function Settings({ setting }) {
   const [selectedBackground, setSelectedBackground] = useState("lightyellow");
   const [selectedFont, setSelectedFont] = useState("Georgia, serif");
   const [selectedFontSize, setSelectedFontSize] = useState("1.2rem");
-  /* const textcolor = selectedBackground === "nightmode" ? true : false; */
 
   //close drawer when clicked outside
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function Settings({ setting }) {
   };
 
   return (
-    <div ref={drawerRef}>
+    <div ref={drawerRef} className="tooltip">
       <button
         onClick={toggleDrawer}
         className={`flex aspect-square w-16 items-center justify-center hover:scale-110 active:scale-95 cursor-pointer transition-transform hover:text-red-400`}
@@ -64,6 +64,7 @@ export default function Settings({ setting }) {
           />
         </svg>
       </button>
+      <span className="tooltip-text">Settings</span>
 
       {drawer && (
         <div

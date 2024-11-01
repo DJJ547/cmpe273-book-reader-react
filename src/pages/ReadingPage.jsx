@@ -22,7 +22,6 @@ export default function ReadingPage() {
   const styles = {
     container: {
       backgroundColor: backgroundStyles[background],
-      display: "flex",
     },
     content: {
       backgroundColor: backgroundStyles[background],
@@ -44,15 +43,13 @@ export default function ReadingPage() {
       >
         <TopBar />
         <HeaderSection
-          title="Lord of Mysteries"
-          book_cover={
-            "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1723688384i/58826678.jpg"
-          }
+          title={Bookinfo.book_name}
+          book_cover={Bookinfo.book_cover}
         />
-        <BodySection chapter={"Crimson"} content={content} />
+        <BodySection chapter={"Crimson"} content={Bookinfo.content} />
         <BottomBar color={styles.content.color}/>
       </div>
-      <SideBar setting={handleSettingsChange} nightmode={background === 'nightmode' ? true:false}/>
+      <SideBar setting={handleSettingsChange} nightmode={background === 'nightmode' ? true:false} Bookinfo={Bookinfo}/>
     </div>
   );
 }
@@ -173,14 +170,19 @@ const BottomBar = ({color}) => (
   </div>
 );
 
-const content = [
-  <p>
-    With the rising sun, the fog gradually dispersed. The entire city of
-    Backlund was enveloped in a golden morning glow.
-  </p>,
-  <p>
-    Klein walked out of the Blackthorn Security Company and headed to the
-    Blackthorn Library.
-  </p>,
-  <p>He had just entered the library when he saw a familiar figure.</p>,
-];
+const Bookinfo = {
+  book_name: "Lord of Mysteries",
+  book_cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1723688384i/58826678.jpg",
+  author: "Cuttlefish That Loves Diving",
+  current_chapter: 1,
+  content: [
+    "With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow.",
+    "Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.",
+    "He had just entered the library when he saw a familiar figure."
+  ],
+  tableofcontents: Array.from({ length: 100 }, (_, i) => `Chapter ${i + 1}: Crimson`),
+  favorited: true,
+};
+
+
+
