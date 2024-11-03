@@ -7,6 +7,11 @@ export default function ReadingPage() {
   const [background, setBackground] = useState("lightgreen");
   const [font, setFont] = useState('Georgia, serif');
   const [fontSize, setFontSize] = useState("1.2rem");
+  const [highlit_paragraph, setHighlit_paragraph] = useState(null);
+
+  const call_back_get_highlighted_paragraph =(index) => {
+    setHighlit_paragraph(index);
+  }
   
   const handleSettingsChange = (newBackground, newFont, newFontSize) => {
     if (newBackground) setBackground(newBackground);
@@ -45,11 +50,12 @@ export default function ReadingPage() {
         <HeaderSection
           title={Bookinfo.book_name}
           book_cover={Bookinfo.book_cover}
+          author={Bookinfo.author}
         />
-        <BodySection chapter={"Crimson"} content={Bookinfo.content} />
+        <BodySection chapter_title={Bookinfo.chapter_title} content={Bookinfo.content} highlit_paragraph={highlit_paragraph} />
         <BottomBar color={styles.content.color}/>
       </div>
-      <SideBar setting={handleSettingsChange} nightmode={background === 'nightmode' ? true:false} Bookinfo={Bookinfo}/>
+      <SideBar setting={handleSettingsChange} nightmode={background === 'nightmode' ? true:false} Bookinfo={Bookinfo} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}/>
     </div>
   );
 }
@@ -75,7 +81,7 @@ const TopBar = () => (
 );
 const Divider = () => <hr className="border border-gray-400 opacity-50 my-1" />;
 
-const HeaderSection = ({ title, book_cover }) => (
+const HeaderSection = ({ title, book_cover, author }) => (
   <div>
     <Divider />
     <div className="mt-14">
@@ -87,25 +93,27 @@ const HeaderSection = ({ title, book_cover }) => (
       />
       <p className="text-center text-2xl font-bold my-5">{title}</p>
       <p className="text-center text-lg mb-5">
-        <span className="font-bold">Author:</span> Cuttlefish That Loves Diving
+        <span className="font-bold">Author:</span> {author}
       </p>
     </div>
     <Divider />
   </div>
 );
 
-const BodySection = ({ chapter, content }) => (
-  <div className="mt-10 p-4">
-    <div className="font-semibold">Chapter 1: {chapter}</div>
+function BodySection({ chapter_title, content, highlit_paragraph}){
+  return(
+    <div className="mt-10 p-4">
+    <div className="font-semibold">{chapter_title}</div>
     <div className="mt-10">
       {content.map((paragraph, index) => (
-        <p key={index} className="mb-5">
+        <p key={index} className={`mb-5 ${index === highlit_paragraph ? "bg-yellow-400" : ""}`}>
           {paragraph}
         </p>
       ))}
     </div>
   </div>
-);
+  );
+}
 function BottomBar ({color}){
   /* TO DO: implement buttons that go to previous, next chapters, and button that goes to book description page */
   return (
@@ -177,7 +185,8 @@ const Bookinfo = {
   book_name: "Lord of Mysteries",
   book_cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1723688384i/58826678.jpg",
   author: "Cuttlefish That Loves Diving",
-  current_chapter: 1,
+  current_chapter: 30,
+  chapter_title: "Chapter 30: Crimson", 
   content: [
     "With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow.",
     "Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.",

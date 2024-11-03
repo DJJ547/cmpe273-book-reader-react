@@ -7,6 +7,7 @@ export default function TableofContents({ TOC, book_name, current_chapter }) {
   const [drawer, setDrawer] = useState(false);
   const drawerRef = useRef(null);
   const toggleDrawer = () => setDrawer(!drawer);
+  const currentChapterRef = useRef(null);
 
   //close drawer when clicked outside
   useEffect(() => {
@@ -20,6 +21,12 @@ export default function TableofContents({ TOC, book_name, current_chapter }) {
       document.removeEventListener("click", handleClick);
     };
   }, []);
+
+  useEffect(() => {
+    if (currentChapterRef.current) {
+      currentChapterRef.current.scrollIntoView({block: "center" });
+    }
+  }, [drawer]);
 
   return (
     <div ref={drawerRef} className="tooltip">
@@ -96,11 +103,11 @@ export default function TableofContents({ TOC, book_name, current_chapter }) {
           {/* table of contents of the book */}
           <ul className="mt-3 overflow-y-auto">
             {TOC.map((chapter, index) => (
-              <li key={index} className="mb-2">
+              <li key={index} className="mb-2" ref={index + 1 === current_chapter ? currentChapterRef : null}>
                 <a
                   /* TO DO: change the link address to correspond correct link */
                   href={`#${chapter}`}
-                  className="text-gray-500 overflow-x-auto dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:underline"
+                  className={`${index+1 === current_chapter ? 'text-red-600': 'text-gray-500'} overflow-x-auto dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:underline`}
                 >
                   {index+1}. {chapter}
                 </a>

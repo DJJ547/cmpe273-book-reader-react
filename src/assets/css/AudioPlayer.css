@@ -1,0 +1,50 @@
+/* AudioPlayer.css */
+.audio-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .play-pause-button {
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .timeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  .paragraph {
+    flex:1 1 auto;
+    height: 24px;
+    background-color: #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  
+  .paragraph.current {
+    background-color: #4caf50; /* Highlight current paragraph */
+  }
+  .paragraph.completed {
+    background-color: #2196f3; /* Highlight completed paragraph */
+  }
+  
+  
+  .paragraph-display {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    width: 100%;
+    max-width: 400px;
+  }
+  

@@ -1,60 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../assets/css/SideBar.css";
 import "../assets/css/tooltip.css";
+import "../assets/css/AudioPlayer.css";
 
-export default function TTS({ content }) {
+export default function TTS({ content, bookcover, call_back_get_highlighted_paragraph }) {
+  //------------------------- Drawer control---------------------------------------------
   const [drawer, setDrawer] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState(null);
-  const drawerRef = useRef(null);
-  const utteranceRef = useRef(null);
-
   const toggleDrawer = () => setDrawer(!drawer);
+  const drawerRef = useRef(null);
 
-  // Fetch available voices, with improved handling for asynchronous loading
-  useEffect(() => {
-    const populateVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      setVoices(availableVoices);
-      if (availableVoices.length > 0) {
-        setSelectedVoice(availableVoices[0]); // Set a default voice if available
-      }
-    };
-
-    // Call populateVoices immediately in case voices are already loaded
-    populateVoices();
-
-    // Add event listener for when voices are loaded asynchronously
-    if (typeof window.speechSynthesis.onvoiceschanged !== "undefined") {
-      window.speechSynthesis.onvoiceschanged = populateVoices;
-    }
-  }, []);
-
-  // TTS toggle function
-  const toggleSpeak = (text) => {
-    if (!("speechSynthesis" in window)) {
-      alert("Sorry, your browser doesn't support text-to-speech.");
-      return;
-    }
-
-    if (isSpeaking) {
-      // If already speaking, cancel the current speech
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    } else {
-      // If not speaking, start a new speech with the selected voice
-      utteranceRef.current = new SpeechSynthesisUtterance(text);
-      if (selectedVoice) {
-        utteranceRef.current.voice = selectedVoice;
-      }
-      utteranceRef.current.onend = () => setIsSpeaking(false); // Reset state when speech ends
-      window.speechSynthesis.speak(utteranceRef.current);
-      setIsSpeaking(true);
-    }
-  };
-
-  // Close drawer when clicked outside
   useEffect(() => {
     const handleClick = (event) => {
       if (drawerRef.current && !drawerRef.current.contains(event.target)) {
@@ -66,6 +20,107 @@ export default function TTS({ content }) {
       document.removeEventListener("click", handleClick);
     };
   }, []);
+
+  //---------------------------TTS player---------------------------------------------
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentParagraphIndex, setCurrentParagraphIndex] = useState(0); // Track current paragraph
+  const [completedParagraphs, setCompletedParagraphs] = useState([]); // Track completed paragraphs
+
+  const intervalRef = useRef(null);
+  //--------------------------------get_highlted current paragraph--------------------
+  useEffect(() => {
+    if (isPlaying) {
+        call_back_get_highlighted_paragraph(currentParagraphIndex);
+    }
+    else {
+      call_back_get_highlighted_paragraph(null);
+    }
+  }, [isPlaying, currentParagraphIndex]);
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      pauseAudio();
+    } else {
+      playCurrentParagraph();
+    }
+  };
+  const handlePlayNext = () => {
+    if (currentParagraphIndex < content.length - 1) {
+      setCurrentParagraphIndex((prev) => {
+        const nextIndex = prev + 1;
+        playNextParagraph(nextIndex);
+        return nextIndex;
+      });
+    }
+  }
+  const handlePlayPrevious = () => {
+    if (currentParagraphIndex > 0) {
+      setCurrentParagraphIndex((prev) => {
+        const nextIndex = prev - 1;
+        playNextParagraph(nextIndex);
+        return nextIndex;
+      });
+    }
+  }
+
+  const playCurrentParagraph = () => {
+    const currentText = content[currentParagraphIndex];
+
+    if (window.responsiveVoice) {
+      // Play ResponsiveVoice TTS for the current paragraph
+      window.responsiveVoice.speak(currentText, "UK English Female", {
+        onstart: () => setIsPlaying(true),
+        onend: () => handleParagraphEnd(),
+      });
+    } else {
+      alert("ResponsiveVoice is not available.");
+    }
+  };
+
+  const handleParagraphEnd = () => {
+    setCompletedParagraphs((prev) => [...prev, currentParagraphIndex]); // Mark paragraph as completed
+
+
+    if (currentParagraphIndex < content.length - 1) {
+      setCurrentParagraphIndex((prev) => {
+        const nextIndex = prev + 1;
+        playNextParagraph(nextIndex);
+        return nextIndex;
+      });
+    }
+    
+  };
+
+  const playNextParagraph = (index) => {
+    const nextText = content[index];
+    setCompletedParagraphs(Array.from({ length: index }, (_, i) => i)); // Mark all previous paragraphs as completed
+
+    if (window.responsiveVoice) {
+      // Play ResponsiveVoice TTS for the next paragraph
+      window.responsiveVoice.speak(nextText, "UK English Female", {
+        onstart: () => setIsPlaying(true),
+        onend: () => handleParagraphEnd(),
+      });
+    } else {
+      alert("ResponsiveVoice is not available.");
+    }
+  };
+
+  const pauseAudio = () => {
+    if (window.responsiveVoice) {
+      window.responsiveVoice.cancel();
+    }
+    setIsPlaying(false);
+    clearInterval(intervalRef.current);
+  };
+
+  const handleTimelineClick = (index) => {
+    pauseAudio(); // Pause current playback
+    setCurrentParagraphIndex(index); // Set selected paragraph as current
+    setCompletedParagraphs(Array.from({ length: index }, (_, i) => i)); // Mark all previous paragraphs as completed
+    playCurrentParagraph(); // Start playback from selected paragraph
+  };
+  //------------------------------------------------------------------------
 
   return (
     <div ref={drawerRef} className="tooltip">
@@ -143,59 +198,120 @@ export default function TTS({ content }) {
             </button>
           </div>
 
-          {/* Voice Selector */}
-          <div className="mb-4">
-            <label
-              htmlFor="voiceSelect"
-              className="text-sm text-gray-500 dark:text-gray-400"
-            >
-              Select Voice:
-            </label>
-            <select
-              id="voiceSelect"
-              onChange={(e) =>
-                setSelectedVoice(
-                  voices.find((voice) => voice.name === e.target.value)
-                )
-              }
-              className="block w-full mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded"
-              value={selectedVoice ? selectedVoice.name : ""}
-            >
-              {voices.map((voice) => (
-                <option key={voice.name} value={voice.name}>
-                  {voice.name} ({voice.lang})
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* AI TTS */}
-          <div className="flex flex-col items-center justify-center">
-            <button
-              onClick={() => toggleSpeak(content)}
-              className="flex items-center justify-center w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full mb-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isSpeaking ? "Stop Reading" : "Start Reading"}
-            </p>
+          <h4 className="text-lg font-semibold text-gray-500 dark:text-gray-400">
+            responsiveVoice
+          </h4>
+
+          <div className="audio-player text-black outline outline-1 outline-gray-400 p-3">
+            <img src={bookcover} className="h-[20vh] hidden md:flex"></img>
+            {/* Play, Pause, Next, Previous buttons */}
+            <div className="flex justify-center mt-3">
+              <div className="bg-mycolor flex justify-around items-center w-full h-12 rounded-full shadow-md">
+                {/* play Previous paragraph */}
+                <button className={` px-4 text-sm font-medium hover:scale-110`} onClick={handlePlayPrevious}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z"
+                    />
+                  </svg>
+                </button>
+
+                <div className="h-6 w-px bg-gray-300"></div>
+
+                {/* play and pause */}
+                <button onClick={handlePlayPause} className="play-pause-button px-4 text-sm font-medium hover:scale-110">
+                  {!isPlaying ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.75 5.25v13.5m-7.5-13.5v13.5"
+                      />
+                    </svg>
+                  )}
+                </button>
+
+                <div className="h-6 w-px bg-gray-300"></div>
+
+                {/* play next paragraph */}
+                <button className={` px-4 text-sm font-medium hover:scale-110`} onClick={handlePlayNext}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 7.189c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 15.311V7.189ZM12.75 7.189c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V7.189Z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+              
+            {/* Timeline with a percentage mark like 60% */}  
+            <div className="timeline rounded-lg">
+              {content.map((paragraph, index) => (
+                <div
+                  key={index}
+                  className={`paragraph ${
+                    completedParagraphs.includes(index)
+                      ? "completed"
+                      : index === currentParagraphIndex
+                      ? "current"
+                      : ""
+                  }`}
+                  onClick={() => handleTimelineClick(index)}
+                >
+                </div>
+              ))}
+              
+            </div>
+
+            
+          </div>
+          {/* Paragraph Display */}
+          <div className="text-black paragraph-display outline-1 outline outline-gray-400">
+              <p>{content[currentParagraphIndex]}</p>
           </div>
 
-          {/* Close Drawer */}
+          {/* End */}
         </div>
       )}
     </div>
