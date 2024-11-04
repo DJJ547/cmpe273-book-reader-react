@@ -4,28 +4,42 @@ import {
   CardContent,
   Typography,
   CardMedia,
-  Grid,
+  Grid2,
   Button,
   Container,
-  Paper,
+  CircularProgress,
 } from "@mui/material";
 import { useLocation, Link, useNavigate } from "react-router-dom"; // Import to handle URL query and Link
-import mockBooks from "../../data/mockBooks"; // Mock data
+import axios from "axios"; // Import axios for API calls
 
 const SearchPage = () => {
   const query = new URLSearchParams(useLocation().search).get("query");
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true); // State for loading
+  const [error, setError] = useState(""); // State for error handling
   const navigate = useNavigate(); // useNavigate for navigating back
 
   useEffect(() => {
-    // Simulate filtering books based on the query
+    const fetchBooks = async () => {
+      try {
+        setLoading(true); // Set loading to true before fetching
+        const response = await axios.get(
+          `/main/books/with-genres/search/?query=${query}`
+        ); // Update the endpoint for search
+        setBooks(response.data);
+        setError(""); // Clear previous errors
+      } catch (error) {
+        console.error("Error fetching books:", error);
+        setError("Failed to load books. Please try again."); // Set error message
+      } finally {
+        setLoading(false); // Stop loading once done
+      }
+    };
+
     if (query) {
-      const filteredBooks = mockBooks.filter((book) =>
-        book.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setBooks(filteredBooks);
+      fetchBooks();
     } else {
-      setBooks(mockBooks); // Default to showing all books if no query
+      setLoading(false); // Stop loading if there's no query
     }
   }, [query]);
 
@@ -53,63 +67,72 @@ const SearchPage = () => {
         Search Results for "{query}"
       </Typography>
 
-      <Grid container spacing={3}>
-        {books.length > 0 ? (
-          books.map((book) => (
-            <Grid item xs={12} sm={6} md={4} key={book.id}>
-              <Link
-                to={{
-                  pathname: `/book/${book.id}`,
-                  search: `?query=${query}`, // Include the search query in the URL
-                }}
-                style={{ textDecoration: "none" }}
-              >
-                <Card
-                  style={{
-                    margin: "10px",
-                    borderRadius: "12px",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                    transition: "transform 0.3s",
-                    "&:hover": {
-                      transform: "scale(1.05)",
-                    },
-                  }}
+      {loading ? (
+        <CircularProgress /> // Show loading indicator
+      ) : error ? (
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography> // Show error message
+      ) : (
+        <Grid2
+          container
+          spacing={3}
+          style={{ maxHeight: window.innerHeight * 0.7, overflowY: "auto" }}
+        >
+          {books.length > 0 ? (
+            books.map((book) => (
+              <Grid2 item xs={12} sm={6} md={4} key={book.id}>
+                <Link
+                  to={`/book/${book.id}?query=${query}`} // Include the search query in the URL
+                  style={{ textDecoration: "none" }}
                 >
-                  {book.image && (
-                    <CardMedia
-                      component="img"
-                      height="300" // Adjust height for a better aspect ratio
-                      image={book.image}
-                      alt={book.title}
-                      style={{
-                        borderTopLeftRadius: "12px",
-                        borderTopRightRadius: "12px",
-                      }} // Rounded corners
-                    />
-                  )}
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      style={{ fontWeight: "bold", color: "#000" }}
-                    >
-                      {book.title}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      {book.author}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Link>
-            </Grid>
-          ))
-        ) : (
-          <CardContent>
-            <Typography variant="h6" style={{ color: "#888" }}>
-              No books found
-            </Typography>
-          </CardContent>
-        )}
-      </Grid>
+                  <Card
+                    style={{
+                      margin: "10px",
+                      borderRadius: "12px",
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                      transition: "transform 0.3s",
+                      "&:hover": {
+                        transform: "scale(1.05)",
+                      },
+                    }}
+                  >
+                    {book.book_cover && (
+                      <CardMedia
+                        component="img"
+                        height="300" // Adjust height for a better aspect ratio
+                        image={book.book_cover}
+                        alt={book.book_name}
+                        style={{
+                          borderTopLeftRadius: "12px",
+                          borderTopRightRadius: "12px",
+                        }} // Rounded corners
+                      />
+                    )}
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        style={{ fontWeight: "bold", color: "#000" }}
+                      >
+                        {book.book_name}
+                      </Typography>
+                      <Typography variant="subtitle1" color="textSecondary">
+                        {book.author}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </Grid2>
+            ))
+          ) : (
+            <CardContent>
+              <Typography variant="h6" style={{ color: "#888" }}>
+                No books found
+              </Typography>
+            </CardContent>
+          )}
+        </Grid2>
+      )}
     </Container>
   );
 };

@@ -1,16 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   Typography,
   CardMedia,
-  Grid,
+  Grid2,
   ToggleButton,
   ToggleButtonGroup,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import Slider from "react-slick"; // Import the slider
 import { Link } from "react-router-dom"; // Import Link for navigation
-import mockBooks from "../../data/mockBooks"; // Mock data
+import axios from "axios";
 
 const SampleNextArrow = (props) => {
   const { className, style, onClick } = props;
@@ -21,7 +25,7 @@ const SampleNextArrow = (props) => {
         ...style,
         display: "block",
         background: "grey",
-        borderRadius: "50%", // Rounded arrow button
+        borderRadius: "50%",
       }}
       onClick={onClick}
     />
@@ -37,7 +41,7 @@ const SamplePrevArrow = (props) => {
         ...style,
         display: "block",
         background: "grey",
-        borderRadius: "50%", // Rounded arrow button
+        borderRadius: "50%",
       }}
       onClick={onClick}
     />
@@ -45,24 +49,57 @@ const SamplePrevArrow = (props) => {
 };
 
 const MainPage = () => {
-  const [books] = useState(mockBooks);
+  const [books, setBooks] = useState([]);
   const [category, setCategory] = useState("All");
+  const [displayCount, setDisplayCount] = useState(5); // Default number of books to display
 
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 1,
-    nextArrow: <SampleNextArrow />,
-    prevArrow: <SamplePrevArrow />,
-  };
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("/main/books/with-genres/");
+        setBooks(response.data);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
 
   // Filter books based on selected category
   const filteredBooks =
     category === "All"
       ? books
-      : books.filter((book) => book.category === category);
+      : books.filter(
+          (book) =>
+            book.genres &&
+            book.genres.some(
+              (genre) => genre.toLowerCase() === category.toLowerCase()
+            )
+        );
+
+  // Limit to the top N books
+  const displayedBooks = filteredBooks.slice(
+    0,
+    Math.min(displayCount, filteredBooks.length)
+  );
+
+  const sliderSettings = {
+    dots: true,
+    infinite: displayedBooks.length > 1, // Disable looping if there's less than or equal to displayCount
+    speed: 500,
+    slidesToShow: 5, // Always show the defined number of books
+    slidesToScroll: 5,
+    nextArrow: <SampleNextArrow />,
+    prevArrow: <SamplePrevArrow />,
+  };
+
+  const truncateDescription = (description, maxChars) => {
+    if (description && description.length > maxChars) {
+      return `${description.substring(0, maxChars)}...`;
+    }
+    return description || "No description available";
+  };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -77,84 +114,61 @@ const MainPage = () => {
         aria-label="book category"
         style={{ marginBottom: "20px" }}
       >
-        <ToggleButton
-          value="All"
-          aria-label="all"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor: category === "All" ? "#3f51b5" : "#f1f1f1",
-            color: category === "All" ? "white" : "black",
-          }}
-        >
-          All
-        </ToggleButton>
-        <ToggleButton
-          value="Fiction"
-          aria-label="fiction"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor: category === "Fiction" ? "#3f51b5" : "#f1f1f1",
-            color: category === "Fiction" ? "white" : "black",
-          }}
-        >
-          Fiction
-        </ToggleButton>
-        <ToggleButton
-          value="Non-Fiction"
-          aria-label="non-fiction"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor: category === "Non-Fiction" ? "#3f51b5" : "#f1f1f1",
-            color: category === "Non-Fiction" ? "white" : "black",
-          }}
-        >
-          Non-Fiction
-        </ToggleButton>
-        <ToggleButton
-          value="Mystery"
-          aria-label="mystery"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor: category === "Mystery" ? "#3f51b5" : "#f1f1f1",
-            color: category === "Mystery" ? "white" : "black",
-          }}
-        >
-          Mystery
-        </ToggleButton>
-        <ToggleButton
-          value="Fantasy"
-          aria-label="fantasy"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor: category === "Fantasy" ? "#3f51b5" : "#f1f1f1",
-            color: category === "Fantasy" ? "white" : "black",
-          }}
-        >
-          Fantasy
-        </ToggleButton>
-        <ToggleButton
-          value="Science Fiction"
-          aria-label="science fiction"
-          style={{
-            borderRadius: "20px",
-            margin: "0 5px",
-            backgroundColor:
-              category === "Science Fiction" ? "#3f51b5" : "#f1f1f1",
-            color: category === "Science Fiction" ? "white" : "black",
-          }}
-        >
-          Sci-Fi
-        </ToggleButton>
+        {[
+          "All",
+          "Thriller",
+          "Post-apocalyptic",
+          "Fantasy",
+          "Comedy",
+          "Sci-Fi",
+          "Romance",
+          "Action",
+          "Historical",
+          "Josei",
+          "Xuanhuan",
+          "Mystery",
+          "Crime",
+          "Martial Arts",
+          "Adventure",
+        ].map((genre) => (
+          <ToggleButton
+            key={genre}
+            value={genre}
+            aria-label={genre.toLowerCase()}
+            style={{
+              borderRadius: "20px",
+              margin: "0 5px",
+              backgroundColor: category === genre ? "#3f51b5" : "#f1f1f1",
+              color: category === genre ? "white" : "black",
+            }}
+          >
+            {genre}
+          </ToggleButton>
+        ))}
       </ToggleButtonGroup>
 
+      <FormControl
+        variant="outlined"
+        style={{ marginBottom: "20px", minWidth: 120 }}
+      >
+        <InputLabel id="display-count-label">Books to Display</InputLabel>
+        <Select
+          labelId="display-count-label"
+          value={displayCount}
+          onChange={(e) => setDisplayCount(e.target.value)}
+          label="Books to Display"
+        >
+          {[5, 10, 15, 20, 100].map((count) => (
+            <MenuItem key={count} value={count}>
+              {count}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <Slider {...sliderSettings}>
-        {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
+        {displayedBooks.length > 0 ? (
+          displayedBooks.map((book) => (
             <Link
               to={`/book/${book.id}`}
               key={book.id}
@@ -163,28 +177,27 @@ const MainPage = () => {
               <Card
                 style={{
                   width: window.innerWidth * 0.15,
-
                   margin: "10px",
                   cursor: "pointer",
                   borderRadius: "20px",
-                  overflow: "hidden", // Prevent overflow
+                  overflow: "hidden",
                 }}
               >
-                {book.image && (
+                {book.book_cover && (
                   <CardMedia
                     component="img"
-                    height="300" // Height for 3:4 aspect ratio
-                    image={book.image}
-                    alt={book.title}
+                    height="300"
+                    image={book.book_cover}
+                    alt={book.book_name}
                     style={{
                       width: window.innerWidth * 0.15,
-                      objectFit: "cover", // Maintain aspect ratio
-                      borderRadius: "20px 20px 0 0", // Rounded top corners
+                      objectFit: "cover",
+                      borderRadius: "20px 20px 0 0",
                     }}
                   />
                 )}
                 <CardContent>
-                  <Typography variant="h6">{book.title}</Typography>
+                  <Typography variant="h6">{book.book_name}</Typography>
                   <Typography variant="subtitle1" color="textSecondary">
                     {book.author}
                   </Typography>
@@ -193,18 +206,23 @@ const MainPage = () => {
             </Link>
           ))
         ) : (
-          <Typography>No books found</Typography>
+          <Card
+            style={{ margin: "10px", borderRadius: "20px", overflow: "hidden" }}
+          >
+            <CardContent style={{ textAlign: "center" }}>
+              <Typography variant="h6">No Books Found</Typography>
+            </CardContent>
+          </Card>
         )}
       </Slider>
 
       <Typography variant="h4" gutterBottom style={{ marginTop: "40px" }}>
         Top Charts
       </Typography>
-
       <div style={{ maxWidth: "90vw", margin: "0 auto" }}>
-        <Grid container spacing={2}>
-          {filteredBooks.slice(0, 9).map((book, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+        <Grid2 container spacing={2}>
+          {books.slice(0, 9).map((book) => (
+            <Grid2 item xs={12} sm={6} md={4} key={book.id}>
               <Link to={`/book/${book.id}`} style={{ textDecoration: "none" }}>
                 <Card
                   style={{
@@ -213,39 +231,50 @@ const MainPage = () => {
                     padding: "10px",
                     cursor: "pointer",
                     borderRadius: "20px",
+                    height: "200px",
+                    overflow: "hidden",
                   }}
                 >
-                  {book.image && (
+                  {book.book_cover && (
                     <CardMedia
                       component="img"
                       sx={{
                         width: 100,
-                        height: 150, // Height for 3:4 aspect ratio
-                        borderRadius: "10px", // Rounded corners
-                        objectFit: "cover", // Maintain aspect ratio
+                        height: 150,
+                        borderRadius: "10px",
+                        objectFit: "cover",
                       }}
-                      image={book.image}
-                      alt={book.title}
+                      image={book.book_cover}
+                      alt={book.book_name}
                     />
                   )}
-                  <CardContent>
-                    <Typography variant="h6">{book.title}</Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
+                  <CardContent
+                    sx={{
+                      flex: "1 0 auto",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography variant="h6" style={{ marginBottom: "4px" }}>
+                      {book.book_name}
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      color="textSecondary"
+                      style={{ marginBottom: "4px" }}
+                    >
                       {book.author}
                     </Typography>
-                    <Typography variant="body2">{book.rating} ⭐</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {book.price}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {book.overview}
+                    <Typography variant="body2">
+                      {truncateDescription(book.book_description, 70)}
                     </Typography>
                   </CardContent>
                 </Card>
               </Link>
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       </div>
     </div>
   );

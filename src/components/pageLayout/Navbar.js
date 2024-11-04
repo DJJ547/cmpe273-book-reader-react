@@ -66,7 +66,18 @@ const Navbar = () => {
   }, [isSearchActive, searchTerm]); // Add searchTerm as a dependency
 
   return (
-    <Menu style={{ backgroundColor: "#ADD8E6", color: "black", fontSize }}>
+    <Menu
+      style={{
+        backgroundColor: "#ADD8E6",
+        color: "black",
+        fontSize,
+        position: "fixed",
+        top: "0",
+        left: "0",
+        right: "0",
+        zIndex: 1000,
+      }}
+    >
       {/* Light blue background */}
       <Menu.Item header>
         <img
