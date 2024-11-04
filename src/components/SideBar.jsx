@@ -4,6 +4,7 @@ import Settings from "./Settings";
 import TableofContents from "./TableofContents";
 import AddtoReadinglist from "./AddtoReadinglist";
 import TTS from "./TTS";
+import AudioPlayer from "./AudioPlayer";
 
 const SideBar = ({setting, nightmode, Bookinfo, call_back_get_highlighted_paragraph}) => {
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(false);
@@ -41,7 +42,6 @@ const SideBar = ({setting, nightmode, Bookinfo, call_back_get_highlighted_paragr
           <TableofContents TOC={Bookinfo.tableofcontents} current_chapter={Bookinfo.current_chapter}/>
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited}/>
           <TTS content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}/>
-          <Settings setting={setting}/>
           <Settings setting={setting}/>
         </nav>
       </div>
