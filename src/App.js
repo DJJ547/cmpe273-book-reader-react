@@ -1,8 +1,5 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-// ... other imports
-import "./index.css";
-
 //utilities
 
 //components
@@ -13,17 +10,18 @@ import Test from "./pages/Test";
 // import Main from "./pages/Main";
 import Login from "./pages/auth/Login";
 // import Signup from "./pages/auth/Signup";
-import BookList from "./pages/BookList";
-import TestBookContent from "./components/test/TestBookContent"
+import ReadingLists from "./pages/ReadingLists";
+import TestGetBookContent from "./components/test/TestGetBookContent";
+// ... other imports
 
 export default function App() {
   return (
     <div>
       <Routes>
         <Route path="/test" element={<Test />} />
-        <Route path="/book/:id" element={<TestBookContent />} />
+        <Route path="/book/:id" element={<TestGetBookContent />} />
         {/* <Route path="/auth/login" element={<Login />} /> */}
-        <Route path="/book-lists" element={<BookList />} />
+        <Route path="/readingLists" element={<ReadingLists />} />
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
         {/* <Route path="/" element={<Main />} /> */}
         {/* <Route path="/test" element={<Test />} /> */}

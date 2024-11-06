@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 const api_url = process.env.REACT_APP_BACKEND_LOCALHOST;
 
-const TestGetPopularBooks = ({ genre, maxResults }) => {
+const TestGetBooksByGenre = ({ genre, maxResults }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -23,9 +25,10 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
   const fetchPopularBooks = async () => {
     try {
       const response = await axios.get(
-        `${api_url}api/get-specific-books/?genre=${genre}&maxResults=${maxResults}`
+        `${api_url}api/get-books-by-genre/?genre=${genre}&maxResults=${maxResults}`
       );
-      setBooks(response.data.items || []);
+      console.log(response);
+      setBooks(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching popular books:", error);
@@ -36,6 +39,11 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
   useEffect(() => {
     fetchPopularBooks();
   }, []);
+
+  const handleBookClick = (book) => {
+    // Pass the entire book object as state
+    navigate(`/book/${book.google_id}`, { state: { book } });
+  };
 
   return (
     <div className="relative border border-solid border-black">
@@ -57,7 +65,7 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
             ref={scrollRef}
           >
             {books.length === 0 ? (
-              <p>No ${genre} books found.</p>
+              <p>No {genre} books found.</p>
             ) : (
               books.map((book) => (
                 <div
@@ -68,18 +76,19 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
                     width: "150px",
                     textAlign: "center",
                     position: "relative",
+                    cursor: "pointer",
                   }}
+                  onClick={() => handleBookClick(book)}
                 >
-                  {book.volumeInfo.imageLinks?.thumbnail && (
+                  {book.cover_url && (
                     <img
-                      src={book.volumeInfo.imageLinks.thumbnail}
-                      alt={book.volumeInfo.title}
+                      src={book.cover_url}
+                      alt={book.title}
                       style={{
                         height: "200px",
                         width: "150px",
                         objectFit: "cover",
                         marginBottom: "10px",
-                        cursor: "pointer",
                         transition: "filter 0.3s ease",
                       }}
                       onMouseEnter={(e) => {
@@ -98,7 +107,7 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
                       width: "150px",
                     }}
                   >
-                    {book.volumeInfo.title}
+                    {book.title}
                   </h3>
                 </div>
               ))
@@ -117,4 +126,4 @@ const TestGetPopularBooks = ({ genre, maxResults }) => {
   );
 };
 
-export default TestGetPopularBooks;
+export default TestGetBooksByGenre;

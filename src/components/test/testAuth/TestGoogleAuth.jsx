@@ -26,7 +26,7 @@ const TestGoogleAuth = () => {
       setAuthCode(code); // Save authorization code to state
 
       // Send the authorization code to the backend for token exchange
-      const res = await fetch(`${api_url}api/exchange-code/`, {
+      const res = await fetch(`${api_url}auth/exchange-code/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
