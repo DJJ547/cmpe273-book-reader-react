@@ -10,6 +10,7 @@
     "cmpe273-book-reader": "file:",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-draggable": "^4.4.6",
     "react-player": "^2.16.0",
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",

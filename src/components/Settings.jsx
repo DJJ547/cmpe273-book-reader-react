@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { SettingsContext } from "./context/SettingsContext";
 import "../assets/css/SideBar.css";
 import "../assets/css/tooltip.css";
 
-export default function Settings({ setting }) {
+export default function Settings() {
+  const { background, font, fontSize, handleSettingsChange } = useContext(SettingsContext);
+
   const [drawer, setDrawer] = useState(false);
   const drawerRef = useRef(null);
   const toggleDrawer = () => setDrawer(!drawer);
-  const [selectedBackground, setSelectedBackground] = useState("lightyellow");
-  const [selectedFont, setSelectedFont] = useState("Georgia, serif");
-  const [selectedFontSize, setSelectedFontSize] = useState("1.2rem");
 
   //close drawer when clicked outside
   useEffect(() => {
@@ -23,20 +23,6 @@ export default function Settings({ setting }) {
       document.removeEventListener("click", handleClick);
     };
   }, []);
-
-  //handle setting changes
-  const handleSettingsChange = (bgcolor, fontfamily, fontsize) => {
-    if (bgcolor) {
-      setSelectedBackground(bgcolor);
-    }
-    if (fontfamily) {
-      setSelectedFont(fontfamily);
-    }
-    if (fontsize) {
-      setSelectedFontSize(fontsize);
-    }
-    setting(bgcolor, fontfamily, fontsize);
-  };
 
   return (
     <div ref={drawerRef} className="tooltip">
@@ -68,9 +54,9 @@ export default function Settings({ setting }) {
 
       {drawer && (
         <div
-          className={`fixed top-0 left-0 z-40 h-[70vh] p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
+          className={`fixed top-0 left-0 z-40 p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
             window.innerWidth < 768 ? "animate-fade-in-slide-up-from-bottom" : "animate-fade-in-slide-up"
-          } ${window.innerWidth < 768 ? "w-full" : "w-80"}`}
+          } ${window.innerWidth < 768 ? "w-full h-[95vh] " : "w-80 h-[65vh]"} transition-all duration-300`}
         >
           <h5 className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400">
             <svg
@@ -122,55 +108,55 @@ export default function Settings({ setting }) {
             <div className="flex justify-between items-center gap-1">
               <button
                 className={`w-16 h-16 rounded-full border ${
-                  selectedBackground === "lightblue"
+                  background === "lightblue"
                     ? "border-blue-500"
                     : "border-gray-300"
                 }`}
                 style={{ backgroundColor: "rgba(173, 216, 230, 0.2)" }}
                 onClick={() => handleSettingsChange("lightblue")}
               >
-                {selectedBackground === "lightblue" && (
+                {background === "lightblue" && (
                   <span className="text-blue-500">&#10003;</span>
                 )}
               </button>
 
               <button
                 className={`w-16 h-16 rounded-full border ${
-                  selectedBackground === "lightyellow"
+                  background === "lightyellow"
                     ? "border-blue-500"
                     : "border-gray-300"
                 }`}
                 style={{ backgroundColor: "rgba(250, 248, 228, 0.7)" }}
                 onClick={() => handleSettingsChange("lightyellow")}
               >
-                {selectedBackground === "lightyellow" && (
+                {background === "lightyellow" && (
                   <span className="text-blue-500">&#10003;</span>
                 )}
               </button>
               <button
                 className={`w-16 h-16 rounded-full border ${
-                  selectedBackground === "lightgreen"
+                  background === "lightgreen"
                     ? "border-blue-500"
                     : "border-gray-300"
                 }`}
                 style={{ backgroundColor: "rgba(144, 238, 144, 0.1)" }}
                 onClick={() => handleSettingsChange("lightgreen")}
               >
-                {selectedBackground === "lightgreen" && (
+                {background === "lightgreen" && (
                   <span className="text-blue-500">&#10003;</span>
                 )}
               </button>
 
               <button
                 className={`w-16 h-16 rounded-full border ${
-                  selectedBackground === "nightmode"
+                  background === "nightmode"
                     ? "border-blue-500"
                     : "border-gray-300"
                 }`}
                 style={{ backgroundColor: "rgba(0, 0, 0, 0.9)" }}
                 onClick={() => handleSettingsChange("nightmode")}
               >
-                {selectedBackground === "nightmode" && (
+                {background === "nightmode" && (
                   <span className="text-blue-500">&#10003;</span>
                 )}
               </button>
@@ -185,7 +171,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "Arial, sans-serif", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "Arial, sans-serif"
+                  font === "Arial, sans-serif"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -198,7 +184,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "Georgia, serif", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "Georgia, serif"
+                  font === "Georgia, serif"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -211,7 +197,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "Verdana, sans-serif", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "Verdana, sans-serif"
+                  font === "Verdana, sans-serif"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -227,7 +213,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "Courier, monospace", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "Courier, monospace"
+                  font === "Courier, monospace"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -241,7 +227,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "Times New Roman, serif", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "Times New Roman, serif"
+                  font === "Times New Roman, serif"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -255,7 +241,7 @@ export default function Settings({ setting }) {
                   handleSettingsChange(null, "SimSun, sans-serif", null)
                 }
                 className={`px-2 py-1 border rounded ${
-                  selectedFont === "SimSun, sans-serif"
+                  font === "SimSun, sans-serif"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -271,7 +257,7 @@ export default function Settings({ setting }) {
               <button
                 onClick={() => handleSettingsChange(null, null, "1rem")}
                 className={`px-2 py-1 border rounded ${
-                  selectedFontSize === "1rem"
+                  fontSize === "1rem"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -281,7 +267,7 @@ export default function Settings({ setting }) {
               <button
                 onClick={() => handleSettingsChange(null, null, "1.2rem")}
                 className={`px-2 py-1 border rounded ${
-                  selectedFontSize === "1.2rem"
+                  fontSize === "1.2rem"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}
@@ -291,7 +277,7 @@ export default function Settings({ setting }) {
               <button
                 onClick={() => handleSettingsChange(null, null, "1.5rem")}
                 className={`px-2 py-1 border rounded ${
-                  selectedFontSize === "1.5rem"
+                  fontSize === "1.5rem"
                     ? "border-blue-500 text-blue-500"
                     : "border-gray-300 text-gray-600"
                 }`}

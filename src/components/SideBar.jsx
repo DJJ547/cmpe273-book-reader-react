@@ -1,12 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import {SettingsContext} from "./context/SettingsContext";
+import { TTSProvider } from "./context/TTSContext";
+import {AudioTTSProvider} from "./context/AudioTTSContext";
 import "../assets/css/SideBar.css";
 import Settings from "./Settings";
 import TableofContents from "./TableofContents";
 import AddtoReadinglist from "./AddtoReadinglist";
 import TTS from "./TTS";
-import AudioPlayer from "./AudioPlayer";
 
-const SideBar = ({setting, nightmode, Bookinfo, call_back_get_highlighted_paragraph}) => {
+
+const SideBar = () => {
+  const { background, Bookinfo, call_back_get_highlighted_paragraph} = useContext(SettingsContext);
+  
+  const nightmode = background === 'nightmode' ? true:false;
+
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(false);
   const bottomBarRef = useRef(null);
 
@@ -41,8 +48,13 @@ const SideBar = ({setting, nightmode, Bookinfo, call_back_get_highlighted_paragr
         <nav className="z-20 flex shrink-0 grow-0 justify-around gap-4 p-2.5 flex-col rounded-lg">
           <TableofContents TOC={Bookinfo.tableofcontents} current_chapter={Bookinfo.current_chapter}/>
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited}/>
-          <TTS content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}/>
-          <Settings setting={setting}/>
+          <TTSProvider content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}>
+            <AudioTTSProvider>
+              <TTS />
+            </AudioTTSProvider>
+          </TTSProvider>
+          
+          <Settings />
         </nav>
       </div>
 
@@ -56,9 +68,12 @@ const SideBar = ({setting, nightmode, Bookinfo, call_back_get_highlighted_paragr
         >
           <TableofContents TOC={Bookinfo.tableofcontents} current_chapter={Bookinfo.current_chapter}/>
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited} />
-          <TTS content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}/>
-          <Settings setting={setting}/>
-          <Settings setting={setting}/>
+          <TTSProvider content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}>
+            <AudioTTSProvider>
+              <TTS />
+            </AudioTTSProvider>
+          </TTSProvider>
+          <Settings />
         </nav>
       </div>
     </>
