@@ -13,7 +13,7 @@ export default function TTS() {
 
   const { minimized, setMinimized } = useContext(TTSContext);
 
-  /* useEffect(() => {
+  useEffect(() => {
     const handleClick = (event) => {
       //check the click is on the drawer
       if (drawerRef.current && !drawerRef.current.contains(event.target)) {
@@ -24,7 +24,7 @@ export default function TTS() {
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, []); */
+  }, []);
   //------------------------------------------------------------------------
   const [audio_available, setAudioAvailable] = useState(true);
 
@@ -57,18 +57,13 @@ export default function TTS() {
         </svg>
       </button>
       <span className="tooltip-text">AI speech reading</span>
-      {drawer && (
         <div
-          className={`flex flex-col fixed top-0 left-0 z-40 p-4 overflow-y-auto bg-white shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
-            minimized
-              ? "w-[150px] overflow-y-hidden overflow-x-hidden h-[50px]"
-              : "h-[95vh]"
-          } ${
+          className={`${drawer? "":"hidden"} flex flex-col fixed top-0 left-0 z-40 p-4 bg-white ${
             window.innerWidth < 768
               ? "animate-fade-in-slide-up-from-bottom"
               : "animate-fade-in-slide-up"
           } ${
-            window.innerWidth < 768 ? "w-full" : "w-[500px]"
+            window.innerWidth < 768 ? "w-full h-[80vh]" : "w-[500px] h-[70vh]"
           } transition-all duration-300`}
         >
           <div>
@@ -89,49 +84,11 @@ export default function TTS() {
                   d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
                 />
               </svg>
-              <span className={`ms-2 ${minimized ? "hidden" : ""}`}>
+              <span className={`ms-2`}>
                 AI reading
               </span>
             </h5>
-            <button
-              onClick={() => setMinimized((prev) => !prev)}
-              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-10 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              {minimized ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 7h12"
-                  />
-                </svg>
-              )}
 
-              <span className="sr-only">Minimize</span>
-            </button>
             <button
               onClick={toggleDrawer}
               className={`text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white`}
@@ -212,7 +169,6 @@ export default function TTS() {
           </div>
           {audio_available ? <AudioTTS /> : <TextTTS />}
         </div>
-      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    background-image: linear-gradient(120deg, #b4e2e6d0 0%, #e49c88cb 100%);
   }
   
   .play-pause-button {
@@ -43,17 +44,29 @@
   .paragraph-display {
     margin-top: 10px;
     padding: 10px;
-    background-color: #f4f4f4;
+    background-image: linear-gradient(120deg, #b4e2e6d0 0%, #e49c88cb 100%);
     width: 80%;
     max-width: 400px;
+    color: black;
+    outline: solid 1px #4242427c;
+
   }
-  
+
+
+.audio-tts {
+  outline: solid 1px #424242;
+  padding: 1rem;
+  width: 80%;
+  margin: 1rem auto;
+  background-image: linear-gradient(120deg, #b4e2e6d0 0%, #e49c88cb 100%);
+}
 
 /* For Audio TTS component */
 .audio-player-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 10px;
 }
 
 .rotating-disc {

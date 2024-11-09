@@ -11,7 +11,6 @@ export const TTSProvider = ({
 
     const [drawer, setDrawer] = useState(false);
     const toggleDrawer = () => setDrawer(!drawer);
-    const [minimized, setMinimized] = useState(false);
 
   //---------------------------TTS player---------------------------------------------
   const [isPlaying, setIsPlaying] = useState(false);
@@ -136,8 +135,6 @@ export const TTSProvider = ({
         pauseAudio,
         handleTimelineClick,
         AudioRef,
-        minimized,
-        setMinimized,
       }}
     >
       {children}

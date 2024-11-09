@@ -17,8 +17,8 @@ export default function TextTTS() {
     <div className="flex flex-col justify-center items-center mt-4">
       {/* AI TTS */}
       <div className="audio-player text-black outline outline-1 outline-gray-400 p-3 w-[80%]">
-        <h4 className="text-lg font-semibold text-gray-500 dark:text-gray-400">
-          responsiveVoice
+        <h4 className="text-lg font-semibold text-black dark:text-gray-400 mr-auto">
+          ResponsiveVoice
         </h4>
         <img src={bookcover} className="h-[20vh] hidden md:flex"></img>
         {/* Play, Pause, Next, Previous buttons */}
@@ -128,7 +128,7 @@ export default function TextTTS() {
         </div>
       </div>
       {/* Paragraph Display */}
-      <div className="text-black paragraph-display outline-1 outline outline-gray-400">
+      <div className="paragraph-display">
         <p>{content[currentParagraphIndex]}</p>
       </div>
     </div>

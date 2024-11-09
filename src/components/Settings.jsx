@@ -54,9 +54,9 @@ export default function Settings() {
 
       {drawer && (
         <div
-          className={`fixed top-0 left-0 z-40 p-4 overflow-y-auto bg-white w-80 shadow-md rounded-sm dark:bg-gray-800 dark:shadow-lg ${
+          className={`fixed top-0 left-0 z-40 p-4 overflow-y-auto bg-white ${
             window.innerWidth < 768 ? "animate-fade-in-slide-up-from-bottom" : "animate-fade-in-slide-up"
-          } ${window.innerWidth < 768 ? "w-full h-[95vh] " : "w-80 h-[65vh]"} transition-all duration-300`}
+          } ${window.innerWidth < 768 ? "w-full h-[70vh] " : "w-80 h-[70vh]"} transition-all duration-300`}
         >
           <h5 className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400">
             <svg

@@ -7,6 +7,7 @@ import Settings from "./Settings";
 import TableofContents from "./TableofContents";
 import AddtoReadinglist from "./AddtoReadinglist";
 import TTS from "./TTS";
+import TextToImage from "./TextToImage";
 
 
 const SideBar = () => {
@@ -53,7 +54,7 @@ const SideBar = () => {
               <TTS />
             </AudioTTSProvider>
           </TTSProvider>
-          
+          <TextToImage />
           <Settings />
         </nav>
       </div>
@@ -73,6 +74,7 @@ const SideBar = () => {
               <TTS />
             </AudioTTSProvider>
           </TTSProvider>
+          <TextToImage />
           <Settings />
         </nav>
       </div>

@@ -9,7 +9,7 @@ export default function AudioTTS() {
     useContext(AudioTTSContext);
   const { bookcover } = useContext(TTSContext);
   return (
-    <div className="mt-4 outline outline-1 p-4 w-[80%] mx-auto outline-gray-400">
+    <div className="audio-tts">
       <h5 className="text-lg font-semibold text-black">Audio TTS</h5>
 
       {/* cover rotating disc */}
