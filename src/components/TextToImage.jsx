@@ -88,7 +88,7 @@ export default function TTS() {
             onClick={() => setmaximize((prev) => !prev)}
             className={`${window.innerWidth<768 ? "hidden": ""} text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-10 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white`}
           >
-            <svg
+            {!maximize?(<svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -101,7 +101,22 @@ export default function TTS() {
                 strokeLinejoin="round"
                 d="M4.5 4.5h15v15h-15v-15z"
               />
-            </svg>
+            </svg>) : (<svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.5 6.5h11v11h-11v-11z"
+              />
+            </svg>)
+              }
             <span className="sr-only">Maximize</span>
           </button>
 
