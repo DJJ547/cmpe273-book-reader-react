@@ -59,7 +59,7 @@ export default function TTS() {
           window.innerWidth < 768 ? "w-full h-[90vh]" : "w-[500px] h-[70vh]"
         } ${
           maximize
-            ? "w-[110vh] h-[95vh] -top-[250px] rounded-sm"
+            ? "w-[110vh] h-[90vh] -top-[220px] rounded-sm"
             : ""
         }transition-all duration-300`}
       >
