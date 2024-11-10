@@ -51,17 +51,11 @@ export default function TTS() {
       <div
         className={`${
           drawer ? "" : "hidden"
-        } flex flex-col fixed top-0 left-0 z-40 p-4 bg-white ${
+        } flex flex-col fixed top-0 left-0 z-40 p-4 bg-white default-size ${
           window.innerWidth < 768
             ? "animate-fade-in-slide-up-from-bottom"
-            : "animate-fade-in-slide-up"
-        } ${
-          window.innerWidth < 768 ? "w-full h-[90vh]" : "w-[500px] h-[70vh]"
-        } ${
-          maximize
-            ? "w-[110vh] h-[90vh] -top-[220px] rounded-sm"
-            : ""
-        }transition-all duration-300`}
+            : `animate-fade-in-slide-up`
+        } ${ maximize ? "maximize-size" : ""} transition-all duration-300`}
       >
         <div>
           <h5
