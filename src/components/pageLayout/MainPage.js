@@ -15,7 +15,7 @@ import {
 import Slider from "react-slick"; // Import the slider
 import { Link } from "react-router-dom"; // Import Link for navigation
 import axios from "axios";
-
+import { calculateMeanRating } from "./BookDetails";
 const SampleNextArrow = (props) => {
   const { className, style, onClick } = props;
   return (
@@ -51,7 +51,7 @@ const SamplePrevArrow = (props) => {
 const MainPage = () => {
   const [books, setBooks] = useState([]);
   const [category, setCategory] = useState("All");
-  const [displayCount, setDisplayCount] = useState(5); // Default number of books to display
+  const [displayCount, setDisplayCount] = useState(15); // Default number of books to display
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -92,6 +92,9 @@ const MainPage = () => {
     slidesToScroll: 5,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
+    autoplay: true, // Enable autoplay
+    autoplaySpeed: 3000, // Set the autoplay speed in milliseconds (e.g., 3000ms = 3 seconds)
+    pauseOnHover: true, // Pause autoplay when the user hovers over the slider
   };
 
   const truncateDescription = (description, maxChars) => {
@@ -100,7 +103,12 @@ const MainPage = () => {
     }
     return description || "No description available";
   };
-
+  const sortedBooks = books
+    .map((book) => ({
+      ...book,
+      averageRating: calculateMeanRating(book.reviews),
+    }))
+    .sort((a, b) => b.averageRating - a.averageRating); // Sort books by rating in descending order
   return (
     <div style={{ padding: "20px" }}>
       <Typography variant="h4" gutterBottom>
@@ -186,11 +194,11 @@ const MainPage = () => {
                 {book.book_cover && (
                   <CardMedia
                     component="img"
-                    height="300"
                     image={book.book_cover}
                     alt={book.book_name}
                     style={{
-                      width: window.innerWidth * 0.15,
+                      width: window.innerWidth * 0.2 * (3 / 4), // Responsive width
+                      height: window.innerWidth * 0.2, // Maintain 4:3 aspect ratio
                       objectFit: "cover",
                       borderRadius: "20px 20px 0 0",
                     }}
@@ -201,6 +209,10 @@ const MainPage = () => {
                   <Typography variant="subtitle1" color="textSecondary">
                     {book.author}
                   </Typography>
+                  {/* <Typography variant="h6" style={{ fontWeight: "bold" }}>
+                    Rating:
+                    {calculateMeanRating(book.reviews) } / 5
+                  </Typography> */}
                 </CardContent>
               </Card>
             </Link>
@@ -221,7 +233,7 @@ const MainPage = () => {
       </Typography>
       <div style={{ maxWidth: "90vw", margin: "0 auto" }}>
         <Grid2 container spacing={2}>
-          {books.slice(0, 9).map((book) => (
+          {sortedBooks.slice(0, 9).map((book) => (
             <Grid2 item xs={12} sm={6} md={4} key={book.id}>
               <Link to={`/book/${book.id}`} style={{ textDecoration: "none" }}>
                 <Card
@@ -239,10 +251,14 @@ const MainPage = () => {
                     <CardMedia
                       component="img"
                       sx={{
-                        width: 100,
-                        height: 150,
                         borderRadius: "10px",
                         objectFit: "cover",
+                      }}
+                      style={{
+                        width: window.innerWidth * 0.08 * (3 / 4), // Responsive width
+                        height: window.innerWidth * 0.08, // Maintain 4:3 aspect ratio
+                        objectFit: "cover",
+                        borderRadius: "20px 20px 0 0",
                       }}
                       image={book.book_cover}
                       alt={book.book_name}
@@ -266,8 +282,12 @@ const MainPage = () => {
                     >
                       {book.author}
                     </Typography>
-                    <Typography variant="body2">
+                    <Typography variant="body2" style={{ marginBottom: "4px" }}>
                       {truncateDescription(book.book_description, 70)}
+                    </Typography>
+                    {/* Display the average rating */}
+                    <Typography variant="body2" style={{ fontWeight: "bold" }}>
+                      Rating: {book.averageRating} / 5
                     </Typography>
                   </CardContent>
                 </Card>

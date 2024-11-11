@@ -10,6 +10,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useLocation, Link, useNavigate } from "react-router-dom"; // Import to handle URL query and Link
+import { calculateMeanRating } from "./BookDetails";
+
 import axios from "axios"; // Import axios for API calls
 
 const SearchPage = () => {
@@ -30,7 +32,7 @@ const SearchPage = () => {
         setError(""); // Clear previous errors
       } catch (error) {
         console.error("Error fetching books:", error);
-        setError("Failed to load books. Please try again."); // Set error message
+        setError("No books found matching your search."); // Set error message
       } finally {
         setLoading(false); // Stop loading once done
       }
@@ -100,13 +102,14 @@ const SearchPage = () => {
                     {book.book_cover && (
                       <CardMedia
                         component="img"
-                        height="300" // Adjust height for a better aspect ratio
                         image={book.book_cover}
                         alt={book.book_name}
                         style={{
-                          borderTopLeftRadius: "12px",
-                          borderTopRightRadius: "12px",
-                        }} // Rounded corners
+                          width: window.innerWidth * 0.2 * (3 / 4), // Responsive width
+                          height: window.innerWidth * 0.2, // Maintain 4:3 aspect ratio
+                          objectFit: "cover",
+                          borderRadius: "20px 20px 0 0",
+                        }}
                       />
                     )}
                     <CardContent>
@@ -118,6 +121,14 @@ const SearchPage = () => {
                       </Typography>
                       <Typography variant="subtitle1" color="textSecondary">
                         {book.author}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Rating:
+                        {calculateMeanRating(book.reviews)}
                       </Typography>
                     </CardContent>
                   </Card>
