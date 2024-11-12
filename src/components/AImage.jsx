@@ -13,7 +13,7 @@ export default function AImage(ListImages) {
   const getAIImages = () => {
     setAIgeneration({
       images: [image, a],
-      description: ["Image 1", "Image 2"],
+      description: ["With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow. Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.", "Image 2"],
     });
   };
 
