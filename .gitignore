@@ -23,3 +23,37 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env
+
+
+package-lock.json
+
+
+
+# Maven build directory
+/target/
+
+# IDE files
+.vscode/
+*.code-workspace
+*.iml
+*.classpath
+*.project
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# H2 database files (if using H2 for development)
+*.mv.db
+*.trace.db
+*.lock.db
+
+# Maven wrapper files
+.mvn/
+mvnw
+mvnw.cmd
+
+

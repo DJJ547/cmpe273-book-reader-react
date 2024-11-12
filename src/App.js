@@ -1,30 +1,24 @@
+// src/App.js
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-// ... other imports
-import "./index.css";
+import { Route, Routes } from "react-router-dom";
+import Navbar from "./components/pageLayout/Navbar";
+import MainPage from "./components/pageLayout/MainPage";
+import SearchPage from "./components/pageLayout/SearchPage";
+import BookDetails from "./components/pageLayout/BookDetails";
+import "semantic-ui-css/semantic.min.css";
 
-//utilities
-
-//components
-import PageLayout from "./components/pageLayout/Navbar";
-
-//pages
-import Test from "./pages/Test";
-// import Main from "./pages/Main";
-// import Login from "./pages/auth/Login";
-// import Signup from "./pages/auth/Signup";
-
-export default function App() {
+function App() {
   return (
     <div>
+      <Navbar />
+
       <Routes>
-        <Route path="/test" element={<Test />} />
-        {/* <Route path="/auth/login" element={<Login />} /> */}
-        {/* <Route path="/auth/signup" element={<Signup />} /> */}
-        {/* <Route path="/" element={<Main />} /> */}
-        {/* <Route path="/test" element={<Test />} /> */}
+        <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/book/:id" element={<BookDetails />} />
       </Routes>
     </div>
   );
 }
 
+export default App;
