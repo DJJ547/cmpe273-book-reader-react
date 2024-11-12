@@ -1,11 +1,10 @@
 // src/App.js
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/pageLayout/Navbar";
 import MainPage from "./components/pageLayout/MainPage";
 import SearchPage from "./components/pageLayout/SearchPage";
 import BookDetails from "./components/pageLayout/BookDetails";
-import "semantic-ui-css/semantic.min.css";
 
 //utilities
 
@@ -20,9 +19,10 @@ import Reader from "./pages/Reader";
 // import Signup from "./pages/auth/Signup";
 
 export default function App() {
+  const location = useLocation();
   return (
     <div>
-      <Navbar />
+      {location.pathname !== '/readingpage' && <Navbar />}
 
       <Routes>
         <Route path="/test" element={<Test />} />
@@ -35,5 +35,3 @@ export default function App() {
     </div>
   );
 }
-
-export default App;
