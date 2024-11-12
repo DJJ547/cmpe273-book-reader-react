@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  Button,
   Checkbox,
   Container,
   Dropdown,
@@ -7,67 +8,79 @@ import {
   Form,
   Grid,
 } from "semantic-ui-react";
+import { iconOptions, colorOptions } from "../../utils/utils";
 
-const iconOptions = [
-  { key: "contrast", value: "contrast", icon: "contrast", label: "Contrast" },
-  { key: "public off", value: "public off", icon: "public off", label: "Public Off" },
-  { key: "psychology", value: "psychology", icon: "psychology", label: "Psychology" },
-  { key: "comedy mask", value: "comedy mask", icon: "comedy mask", label: "Comedy Mask" },
-  {
-    key: "science",
-    value: "science",
-    icon: "science",
-    label: "Science",
-  },
-  { key: "favourite", value: "favourite", icon: "favourite", label: "Favourite" },
-  { key: "directions run", value: "directions run", icon: "directions run", label: "Directions Run" },
-  { key: "schedule", value: "schedule", icon: "schedule", label: "Schedule" },
-  { key: "female", value: "female", icon: "female", label: "Female" },
-  { key: "sports martial arts", value: "sports martial arts", icon: "sports martial arts", label: "Sports Martial Arts" },
-  { key: "mystery", value: "mystery", icon: "mystery", label: "Mystery" },
-  { key: "block", value: "block", icon: "block", label: "Block" },
-  { key: "swords", value: "swords", icon: "swords", label: "Swords" },
-  { key: "manga", value: "manga", icon: "manga", label: "Manga" },
-];
-
-const colorOptions = [
-  { key: "red", value: "red", color: "#FF0000", label: "Red" },
-  { key: "green", value: "green", color: "#00FF00", label: "Green" },
-  { key: "blue", value: "blue", color: "#0000FF", label: "Blue" },
-  { key: "yellow", value: "yellow", color: "#FFFF00", label: "Yellow" },
-  { key: "purple", value: "purple", color: "#800080", label: "Purple" },
-  { key: "orange", value: "orange", color: "#FFA500", label: "Orange" },
-  { key: "pink", value: "pink", color: "#FFC0CB", label: "Pink" },
-  { key: "teal", value: "teal", color: "#008080", label: "Teal" },
-  { key: "brown", value: "brown", color: "#A52A2A", label: "Brown" },
-];
-
-const CreateReadingListWindow = () => {
-  const [iconSelected, setIconSelected] = useState(null);
-  const [colorSelected, setColorSelected] = useState(null);
-  const [nameValue, setNameValue] = useState("");
-  const [descriptionValue, setDescriptionValue] = useState("");
-  const [isFavorite, setIsFavorite] = useState(false);
-
+const ReadingListWindowCRUD = ({
+  currentList,
+  isEdit,
+  initialName,
+  initialIcon,
+  initialColor,
+  initialIsFavorite,
+  initialDescription,
+  onSubmit,
+  onClose,
+}) => {
+  const [isEditing, setIsEditing] = useState(isEdit);
+  const [inputList, setInputList] = useState({
+    id: currentList.id,
+    icon: isEdit ? initialIcon : "", 
+    color: isEdit ? initialColor : "",
+    name: isEdit ? initialName : "",
+    description: isEdit ? initialDescription : "",
+    isFavorite: isEdit ? initialIsFavorite : false,
+  });
+  
+  // Handle changes for boolean values (e.g., checkboxes)
   const handleChange = (e, { checked }) => {
-    setIsFavorite(checked);
+    setInputList((prevState) => ({
+      ...prevState,
+      isFavorite: checked,
+    }));
   };
-
+  
+  // Handle icon selection
   const handleIconSelect = (value) => {
-    setIconSelected(value);
+    setInputList((prevState) => ({
+      ...prevState,
+      icon: value,
+    }));
   };
-
+  
+  // Handle color selection
   const handleColorSelect = (color) => {
-    setColorSelected(color);
+    setInputList((prevState) => ({
+      ...prevState,
+      color: color,
+    }));
   };
-
+  
+  // Handle name change
   const handleNameChange = (e) => {
-    setNameValue(e.target.value);
+    setInputList((prevState) => ({
+      ...prevState,
+      name: e.target.value,
+    }));
+  };
+  
+  // Handle description change
+  const handleDescriptionChange = (e) => {
+    setInputList((prevState) => ({
+      ...prevState,
+      description: e.target.value,
+    }));
   };
 
-  const handleDescriptionChange = (e) => {
-    setDescriptionValue(e.target.value);
+  const handleFormSubmit = () => {
+    console.log(isEditing)
+    console.log(currentList)
+
+    onSubmit(isEditing, inputList);
   };
+
+  useEffect(() => {
+    setIsEditing(isEdit);
+  }, [isEdit]);
 
   return (
     <Container
@@ -106,7 +119,7 @@ const CreateReadingListWindow = () => {
               padding: "3px",
             }}
             placeholder="Enter description here"
-            value={nameValue}
+            value={inputList.name}
             onChange={handleNameChange}
           />
         </div>
@@ -135,9 +148,9 @@ const CreateReadingListWindow = () => {
               selection
               trigger={
                 <span>
-                  {iconSelected ? (
+                  {inputList.icon ? (
                     <i className="material-icons" style={{ fontSize: "24px" }}>
-                      {iconSelected}
+                      {inputList.icon}
                     </i>
                   ) : (
                     "Select Icon"
@@ -159,9 +172,6 @@ const CreateReadingListWindow = () => {
                       >
                         {option.icon}
                       </i>
-                      <span style={{ display: "block", fontSize: "12px" }}>
-                        {option.label}
-                      </span>
                     </Grid.Column>
                   ))}
                 </Grid>
@@ -188,10 +198,10 @@ const CreateReadingListWindow = () => {
               selection
               trigger={
                 <span>
-                  {colorSelected ? (
+                  {inputList.color ? (
                     <div
                       style={{
-                        backgroundColor: colorSelected,
+                        backgroundColor: inputList.color,
                         width: "24px",
                         height: "24px",
                         borderRadius: "50%",
@@ -232,7 +242,7 @@ const CreateReadingListWindow = () => {
           <Checkbox
             style={{ marginTop: "15px" }}
             label="Favorite"
-            checked={isFavorite}
+            checked={inputList.isFavorite}
             onChange={handleChange}
           />
 
@@ -257,14 +267,29 @@ const CreateReadingListWindow = () => {
                 border: "1px solid black",
               }}
               placeholder="Enter description here"
-              value={descriptionValue}
+              value={inputList.description}
               onChange={handleDescriptionChange}
             />
           </div>
         </Grid>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-start",
+          }}
+        >
+          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            primary
+            onClick={handleFormSubmit}
+          >
+            {isEditing ? "Save" : "Create"}
+          </Button>
+        </div>
       </div>
     </Container>
   );
 };
 
-export default CreateReadingListWindow;
+export default ReadingListWindowCRUD;
