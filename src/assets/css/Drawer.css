@@ -1,0 +1,12 @@
+.drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: aliceblue;
+    transition: all 0.3s ease;
+}
