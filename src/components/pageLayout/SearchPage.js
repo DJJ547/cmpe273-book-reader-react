@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useLocation, Link, useNavigate } from "react-router-dom"; // Import to handle URL query and Link
 import { calculateMeanRating } from "./BookDetails";
+import "semantic-ui-css/semantic.min.css";
 
 import axios from "axios"; // Import axios for API calls
 
@@ -48,7 +49,7 @@ const SearchPage = () => {
   return (
     <Container
       style={{
-        padding: "20px",
+        padding: "4%",
         backgroundColor: "#f7f7f7",
         borderRadius: "8px",
       }}
@@ -94,6 +95,8 @@ const SearchPage = () => {
                       borderRadius: "12px",
                       boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                       transition: "transform 0.3s",
+                      width: window.innerWidth * 0.2 * (3 / 4), // Responsive width
+                      height: window.innerWidth * 0.25, // Maintain 4:3 aspect ratio
                       "&:hover": {
                         transform: "scale(1.05)",
                       },

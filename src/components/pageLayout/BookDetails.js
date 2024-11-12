@@ -18,6 +18,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, StarBorder, StarHalf } from "@mui/icons-material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import "semantic-ui-css/semantic.min.css";
 
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
@@ -36,6 +37,7 @@ const BookDetails = () => {
   const [book, setBook] = useState(null);
   const [value, setValue] = useState(0);
   const navigate = useNavigate();
+  const screenWidth = window.innerWidth;
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -95,11 +97,12 @@ const BookDetails = () => {
   return (
     <Container
       style={{
-        padding: "20px",
+        padding: "5%",
         backgroundColor: "#f9f9f9",
         borderRadius: "8px",
         width: "85%",
-        maxWidth: "1200px",
+        maxWidth: window.innerWidth * 0.9,
+        height: window.innerHeight * 0.95,
         margin: "auto",
       }}
     >
@@ -107,13 +110,17 @@ const BookDetails = () => {
         onClick={handleBack}
         variant="outlined"
         color="primary"
-        style={{ margin: "20px 0" }}
+        style={{ "margin-top": window.innerWidth <= 768 ? "10%" : "0%" }}
       >
         Back
       </Button>
 
       <Card
         style={{
+          height:
+            window.innerWidth <= 768
+              ? window.innerWidth * 0.5
+              : window.innerHeight * 0.5,
           display: "flex",
           flexDirection: "row",
           marginTop: "20px",
@@ -126,21 +133,31 @@ const BookDetails = () => {
         {book.book_cover && (
           <CardMedia
             component="img"
-            height="400"
+            // height={window.innerHeight * 0.9}
             image={book.book_cover}
             alt={book.book_name}
             style={{
-              width: "auto",
-              flexShrink: 0,
-              borderRadius: "10px 0 0 10px",
-              aspectRatio: "3 / 4",
-              objectFit: "cover",
-              maxWidth: "250px",
+              height:
+                window.innerWidth <= 768
+                  ? window.innerWidth * 0.5
+                  : window.innerHeight * 0.5,
+              width:
+                window.innerWidth <= 768
+                  ? window.innerWidth * 0.5 * (3 / 4)
+                  : window.innerHeight * 0.5 * (3 / 4),
             }}
           />
         )}
         <CardContent
           style={{
+            height:
+              window.innerWidth <= 768
+                ? window.innerWidth * 0.5
+                : window.innerHeight * 0.5,
+
+            ...(screenWidth <= 768 && {
+              overflow: "auto",
+            }),
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
@@ -148,39 +165,77 @@ const BookDetails = () => {
             flexGrow: 1,
           }}
         >
-          <div>
+          <div style={{ padding: screenWidth <= 768 ? "10px" : "20px" }}>
             <Typography
-              variant="h4"
-              style={{ fontWeight: "bold", marginBottom: "10px" }}
+              variant={screenWidth <= 768 ? "h6" : "h4"}
+              style={{
+                fontWeight: "bold",
+                marginBottom: screenWidth <= 768 ? "8px" : "15px",
+              }}
             >
               {book.book_name}
             </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography
+              variant="subtitle1"
+              color="textSecondary"
+              style={{
+                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
+                marginBottom: screenWidth <= 768 ? "5px" : "10px",
+              }}
+            >
               {book.author}
             </Typography>
-            <Typography variant="body2" style={{ marginBottom: "20px" }}>
+            <Typography
+              variant="body2"
+              style={{
+                marginBottom: screenWidth <= 768 ? "15px" : "20px",
+                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
+                ...(screenWidth <= 768 && {
+                  overflow: "auto",
+                  height: window.innerWidth * 0.15,
+                }),
+              }}
+            >
               {book.book_description}
             </Typography>
-            <Typography variant="body2" style={{ fontWeight: "bold" }}>
+            <Typography
+              variant="body2"
+              style={{
+                fontWeight: "bold",
+                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
+                marginBottom: screenWidth <= 768 ? "8px" : "15px",
+              }}
+            >
               Genres: {book.genres.join(", ")}
             </Typography>
             <Typography
               variant="body2"
-              style={{ fontWeight: "bold", marginTop: "10px" }}
+              style={{
+                fontWeight: "bold",
+                marginTop: screenWidth <= 768 ? "8px" : "10px",
+                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
+              }}
             >
               Overall Rating: {calculateMeanRating(book.reviews)} / 5
             </Typography>
-
+            {renderStars(calculateMeanRating(book.reviews))}
             <Typography
               variant="body2"
-              style={{ fontWeight: "bold", marginTop: "10px" }}
+              style={{
+                fontWeight: "bold",
+                marginTop: screenWidth <= 768 ? "8px" : "10px",
+                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
+              }}
             >
-              {renderStars(calculateMeanRating(book.reviews))}
+              Your Rating:
+              {calculateMeanRating(book.reviews)} / 5
             </Typography>
+            {renderStars(calculateMeanRating(book.reviews))}{" "}
           </div>
 
           <div>
             <Button
+              size={screenWidth <= 768 ? "small" : "large"}
               variant="contained"
               color="primary"
               onClick={handleReadBook}
@@ -189,12 +244,22 @@ const BookDetails = () => {
               Read
             </Button>
             <Button
+              size={screenWidth <= 768 ? "small" : "large"}
               variant="outlined"
               color="secondary"
               onClick={handleAddToLibrary}
-              style={{ borderRadius: "20px" }}
+              style={{ borderRadius: "20px", borderRadius: "20px" }}
             >
               Add to Library
+            </Button>
+            <Button
+              size={screenWidth <= 768 ? "small" : "large"}
+              variant="contained"
+              color="success"
+              onClick={handleAddToLibrary}
+              style={{ borderRadius: "20px" }}
+            >
+              Write a Review
             </Button>
           </div>
         </CardContent>

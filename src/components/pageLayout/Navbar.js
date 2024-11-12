@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Menu, Input, Icon } from "semantic-ui-react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the CSS file
+import "semantic-ui-css/semantic.min.css";
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");

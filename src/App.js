@@ -22,9 +22,13 @@ export default function App() {
   const location = useLocation();
   return (
     <div>
-      {location.pathname !== '/readingpage' && <Navbar />}
+      {location.pathname !== "/readingpage" && <Navbar />}
 
       <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/book/:id" element={<BookDetails />} />
+
         <Route path="/test" element={<Test />} />
         <Route path="/readingpage" element={<Reader />} />
         {/* <Route path="/auth/login" element={<Login />} /> */}
