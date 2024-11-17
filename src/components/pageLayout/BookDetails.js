@@ -27,6 +27,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, StarBorder, StarHalf } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 // Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
@@ -51,27 +52,25 @@ const BookDetails = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-
+  const fetchBook = async () => {
+    try {
+      const response = await fetch(`/main/books/with-genres/${id}/`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setBook(data);
+      setReviews(data.reviews || []);
+    } catch (error) {
+      console.error("Error fetching book data:", error);
+    }
+  };
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
     };
 
     window.addEventListener("resize", handleResize);
-
-    const fetchBook = async () => {
-      try {
-        const response = await fetch(`/main/books/with-genres/${id}/`);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setBook(data);
-        setReviews(data.reviews || []);
-      } catch (error) {
-        console.error("Error fetching book data:", error);
-      }
-    };
 
     fetchBook();
 
@@ -99,13 +98,19 @@ const BookDetails = () => {
 
   const handleWriteReview = () => {
     const newReview = {
-      rating,
-      comment: reviewComment,
-      username: "Anonymous", // Update based on actual user data
+      book_id: id,
+      user_id: 1,
+      review: reviewComment,
+      rating: rating,
     };
-
+    axios
+      .post("/main/reviews/", newReview)
+      .then((SUCCESS) => {})
+      .catch((e) => {
+        console.log("post review failed e", e);
+      });
     // Add the new review to the list (you can replace this with an API call)
-    setReviews([...reviews, newReview]);
+    fetchBook();
     setOpenModal(false);
     setRating(0); // Reset rating
     setReviewComment(""); // Clear comment
