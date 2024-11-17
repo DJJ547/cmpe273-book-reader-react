@@ -13,33 +13,52 @@ import {
   ListItem,
   ListItemText,
   Avatar,
+  Grid2,
+  useMediaQuery,
+  useTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Rating,
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, StarBorder, StarHalf } from "@mui/icons-material";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import "semantic-ui-css/semantic.min.css";
-
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Link } from "react-router-dom";
+
+// Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
   if (reviews && reviews.length > 0) {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (totalRating / reviews.length).toFixed(1); // Return the average, rounded to 1 decimal place
+    return (totalRating / reviews.length).toFixed(1);
   }
-  return 0; // Return 0 if no reviews are present
+  return 0;
 };
+
 const BookDetails = () => {
+  const [rating, setRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
   const { id } = useParams();
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("query");
   const [book, setBook] = useState(null);
   const [value, setValue] = useState(0);
   const navigate = useNavigate();
-  const screenWidth = window.innerWidth;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
     const fetchBook = async () => {
       try {
         const response = await fetch(`/main/books/with-genres/${id}/`);
@@ -48,12 +67,15 @@ const BookDetails = () => {
         }
         const data = await response.json();
         setBook(data);
+        setReviews(data.reviews || []);
       } catch (error) {
         console.error("Error fetching book data:", error);
       }
     };
 
     fetchBook();
+
+    return () => window.removeEventListener("resize", handleResize);
   }, [id]);
 
   if (!book) return <Typography>Loading...</Typography>;
@@ -63,7 +85,7 @@ const BookDetails = () => {
   };
 
   const handleReadBook = () => {
-    navigate(`/book/read/${id}`);
+    navigate(`/readingpage/${id}`);
   };
 
   const handleChange = (event, newValue) => {
@@ -75,195 +97,174 @@ const BookDetails = () => {
     else navigate(`/search?query=${query}`);
   };
 
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating); // Number of full stars
-    const halfStars = rating % 1 !== 0; // Is there a half star?
-    const emptyStars = 5 - fullStars - (halfStars ? 1 : 0); // Empty stars to make up 5 stars
+  const handleWriteReview = () => {
+    const newReview = {
+      rating,
+      comment: reviewComment,
+      username: "Anonymous", // Update based on actual user data
+    };
 
-    return (
-      <>
-        {[...Array(fullStars)].map((_, index) => (
-          <Star key={`full-${index}`} style={{ color: "#ff9800" }} />
-        ))}
-        {halfStars && <StarHalf style={{ color: "#ff9800" }} />}{" "}
-        {/* Use StarHalf for the half star */}
-        {[...Array(emptyStars)].map((_, index) => (
-          <StarBorder key={`empty-${index}`} style={{ color: "#ff9800" }} />
-        ))}
-      </>
-    );
+    // Add the new review to the list (you can replace this with an API call)
+    setReviews([...reviews, newReview]);
+    setOpenModal(false);
+    setRating(0); // Reset rating
+    setReviewComment(""); // Clear comment
   };
 
   return (
     <Container
-      style={{
-        padding: "5%",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "8px",
-        width: "85%",
-        maxWidth: window.innerWidth * 0.9,
-        height: window.innerHeight * 0.95,
-        margin: "auto",
-      }}
+      maxWidth="lg"
+      style={{ padding: "5%", backgroundColor: "#f9f9f9", borderRadius: "8px" }}
     >
       <Button
         onClick={handleBack}
         variant="outlined"
         color="primary"
-        style={{ "margin-top": window.innerWidth <= 768 ? "10%" : "0%" }}
+        style={{ marginBottom: "20px" }}
       >
         Back
       </Button>
-
-      <Card
-        style={{
-          height:
-            window.innerWidth <= 768
-              ? window.innerWidth * 0.5
-              : window.innerHeight * 0.5,
-          display: "flex",
-          flexDirection: "row",
-          marginTop: "20px",
-          backgroundColor: "#ffffff",
-          borderRadius: "10px",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-          width: "100%",
-        }}
-      >
-        {book.book_cover && (
-          <CardMedia
-            component="img"
-            // height={window.innerHeight * 0.9}
-            image={book.book_cover}
-            alt={book.book_name}
-            style={{
-              height:
-                window.innerWidth <= 768
-                  ? window.innerWidth * 0.5
-                  : window.innerHeight * 0.5,
-              width:
-                window.innerWidth <= 768
-                  ? window.innerWidth * 0.5 * (3 / 4)
-                  : window.innerHeight * 0.5 * (3 / 4),
-            }}
-          />
-        )}
-        <CardContent
-          style={{
-            height:
-              window.innerWidth <= 768
-                ? window.innerWidth * 0.5
-                : window.innerHeight * 0.5,
-
-            ...(screenWidth <= 768 && {
-              overflow: "auto",
-            }),
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            padding: "20px",
-            flexGrow: 1,
-          }}
+      <Grid2 container spacing={2} alignItems="center">
+        {/* Image Section */}
+        <Grid2
+          item
+          xs={12}
+          md={6}
+          style={{ display: "flex", justifyContent: "center" }}
         >
-          <div style={{ padding: screenWidth <= 768 ? "10px" : "20px" }}>
-            <Typography
-              variant={screenWidth <= 768 ? "h6" : "h4"}
+          {book.book_cover && (
+            <CardMedia
+              component="img"
+              image={book.book_cover}
+              alt={book.book_name}
               style={{
-                fontWeight: "bold",
-                marginBottom: screenWidth <= 768 ? "8px" : "15px",
+                width: "50%", // Image takes 50% width on larger screens
+                height: "auto", // height adjusts based on width
+                objectFit: "cover", // ensures the image fills without stretching
               }}
+            />
+          )}
+        </Grid2>
+
+        {/* Description and Buttons Section */}
+        <Grid2 item xs={12} md={6}>
+          <CardContent>
+            <Typography
+              variant={isMobile ? "h6" : "h4"}
+              style={{ fontWeight: "bold" }}
             >
               {book.book_name}
             </Typography>
             <Typography
               variant="subtitle1"
               color="textSecondary"
-              style={{
-                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
-                marginBottom: screenWidth <= 768 ? "5px" : "10px",
-              }}
+              style={{ marginBottom: "10px" }}
             >
               {book.author}
             </Typography>
-            <Typography
-              variant="body2"
-              style={{
-                marginBottom: screenWidth <= 768 ? "15px" : "20px",
-                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
-                ...(screenWidth <= 768 && {
-                  overflow: "auto",
-                  height: window.innerWidth * 0.15,
-                }),
-              }}
-            >
+            <Typography variant="body2" style={{ marginBottom: "20px" }}>
               {book.book_description}
             </Typography>
-            <Typography
-              variant="body2"
-              style={{
-                fontWeight: "bold",
-                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
-                marginBottom: screenWidth <= 768 ? "8px" : "15px",
-              }}
-            >
+            <Typography variant="body2" style={{ fontWeight: "bold" }}>
               Genres: {book.genres.join(", ")}
             </Typography>
+
             <Typography
               variant="body2"
-              style={{
-                fontWeight: "bold",
-                marginTop: screenWidth <= 768 ? "8px" : "10px",
-                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
-              }}
+              style={{ fontWeight: "bold", marginTop: "10px" }}
             >
               Overall Rating: {calculateMeanRating(book.reviews)} / 5
             </Typography>
-            {renderStars(calculateMeanRating(book.reviews))}
+            {/* Display Average Rating */}
+            <Rating
+              value={Number(calculateMeanRating(book.reviews))}
+              readOnly
+              size="large"
+              style={{ marginBottom: "20px" }}
+            />
+
             <Typography
               variant="body2"
-              style={{
-                fontWeight: "bold",
-                marginTop: screenWidth <= 768 ? "8px" : "10px",
-                fontSize: screenWidth <= 768 ? "0.875rem" : "1rem",
-              }}
+              style={{ fontWeight: "bold", marginTop: "10px" }}
             >
-              Your Rating:
-              {calculateMeanRating(book.reviews)} / 5
+              Your Rating: {rating} / 5
             </Typography>
-            {renderStars(calculateMeanRating(book.reviews))}{" "}
-          </div>
+            {/* Editable Rating */}
+            <Rating
+              value={rating}
+              onChange={(_, newValue) => setRating(newValue)}
+              size="large"
+              style={{ marginBottom: "20px" }}
+            />
 
-          <div>
-            <Button
-              size={screenWidth <= 768 ? "small" : "large"}
-              variant="contained"
-              color="primary"
-              onClick={handleReadBook}
-              style={{ marginRight: "10px", borderRadius: "20px" }}
-            >
-              Read
-            </Button>
-            <Button
-              size={screenWidth <= 768 ? "small" : "large"}
-              variant="outlined"
-              color="secondary"
-              onClick={handleAddToLibrary}
-              style={{ borderRadius: "20px", borderRadius: "20px" }}
-            >
-              Add to Library
-            </Button>
-            <Button
-              size={screenWidth <= 768 ? "small" : "large"}
-              variant="contained"
-              color="success"
-              onClick={handleAddToLibrary}
-              style={{ borderRadius: "20px" }}
-            >
-              Write a Review
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <Grid2 container spacing={2} style={{ marginTop: "20px" }}>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="contained"
+                  color="primary"
+                  fullWidth={isMobile}
+                  onClick={handleReadBook}
+                >
+                  Read
+                </Button>
+              </Grid2>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth={isMobile}
+                  onClick={handleAddToLibrary}
+                >
+                  Add to Library
+                </Button>
+              </Grid2>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="contained"
+                  color="success"
+                  fullWidth={isMobile}
+                  onClick={() => setOpenModal(true)} // Open modal on click
+                >
+                  Write a Review
+                </Button>
+              </Grid2>
+            </Grid2>
+          </CardContent>
+        </Grid2>
+      </Grid2>
+
+      {/* Review Modal */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle>Write a Review</DialogTitle>
+        <DialogContent>
+          <Rating
+            value={rating}
+            onChange={(_, newValue) => setRating(newValue)}
+            size="large"
+            style={{ marginBottom: "20px" }}
+          />
+          <TextField
+            label="Your Review"
+            multiline
+            rows={4}
+            variant="outlined"
+            fullWidth
+            value={reviewComment}
+            onChange={(e) => setReviewComment(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenModal(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleWriteReview} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Tabs
         value={value}
@@ -290,14 +291,13 @@ const BookDetails = () => {
 
       {/* Table of Contents Section */}
       <Box hidden={value !== 1}>
-        {/* Assuming book.chapters exists; adapt as needed */}
-        <List style={{ maxHeight: window.innerHeight * 0.5, overflow: "auto" }}>
+        <List style={{ maxHeight: screenWidth * 0.4, overflow: "auto" }}>
           {book.chapters &&
             book.chapters.map((chapter, index) => (
               <ListItem button key={index}>
                 <Link
-                  to={`/book/read/${id}&chapter=${chapter.chapter_number}`} // Create the URL path
-                  style={{ textDecoration: "none", color: "inherit" }} // Optional styling to remove default link styles
+                  to={`/readingpage/${id}&chapter=${chapter.chapter_number}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <ListItemText primary={`${chapter.chapter_title}`} />
                 </Link>
@@ -309,10 +309,7 @@ const BookDetails = () => {
       {/* Reviews Section */}
       <Box
         hidden={value !== 2}
-        style={{
-          maxHeight: window.innerHeight * 0.5, // Set a max height for the reviews section
-          overflowY: "auto", // Enable vertical scrolling
-        }}
+        style={{ maxHeight: screenWidth * 0.4, overflowY: "auto" }}
       >
         <Typography
           variant="h6"
@@ -320,80 +317,48 @@ const BookDetails = () => {
         >
           User Reviews:
         </Typography>
-        {/* Assuming book.reviews exists; adapt as needed */}
-        {book.reviews && book.reviews.length > 0 ? (
-          book.reviews.map((review, index) => (
+        {reviews.length > 0 ? (
+          reviews.map((review, index) => (
             <Card
               key={index}
               style={{
                 marginBottom: "10px",
                 backgroundColor: "#f1f1f1",
                 borderRadius: "8px",
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
               }}
             >
               <CardContent>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {/* Profile picture with default user icon */}
-                  <Avatar
-                    alt={review.username || "Unknown User"}
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      marginRight: "10px",
-                      borderRadius: "50%",
-                      backgroundColor: "#f4f4f4",
-                    }}
-                  >
-                    <AccountCircleIcon
-                      style={{ fontSize: "40px", color: "#ccc" }}
-                    />
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar style={{ backgroundColor: "#3f51b5" }}>
+                    {review.username[0].toUpperCase() || "Anonymous"}
                   </Avatar>
-
-                  {/* Username */}
                   <Typography
                     variant="body2"
-                    style={{ fontWeight: "bold", fontSize: "14px" }}
+                    style={{ fontWeight: "bold", marginRight: "10px" }}
                   >
-                    {review.username || "Unknown User"}
+                    {review.username || "Anonymous"}
                   </Typography>
                 </div>
-
-                {/* Review text */}
-                <Typography variant="body2" style={{ marginBottom: "10px" }}>
+                <Rating
+                  value={review.rating}
+                  readOnly
+                  size="small"
+                  style={{ marginBottom: "10px" }}
+                />
+                <Typography
+                  variant="body2"
+                  style={{ marginTop: "10px", fontSize: "14px" }}
+                >
                   {review.review}
-                </Typography>
-
-                {/* Rating */}
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {[...Array(5)].map((_, i) => {
-                    if (i < Math.floor(review.rating)) {
-                      return <Star key={i} style={{ color: "#FFD700" }} />;
-                    } else if (i < Math.ceil(review.rating)) {
-                      return <StarHalf key={i} style={{ color: "#FFD700" }} />;
-                    } else {
-                      return (
-                        <StarBorder key={i} style={{ color: "#FFD700" }} />
-                      );
-                    }
-                  })}
-                </div>
-
-                {/* Rating number */}
-                <Typography variant="caption" color="textSecondary">
-                  ({review.rating.toFixed(1)}/5)
                 </Typography>
               </CardContent>
             </Card>
           ))
         ) : (
-          <Typography>No reviews available.</Typography>
+          <Typography variant="body2" color="textSecondary">
+            No reviews yet.
+          </Typography>
         )}
       </Box>
     </Container>

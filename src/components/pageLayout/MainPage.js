@@ -54,8 +54,14 @@ const MainPage = () => {
   const [books, setBooks] = useState([]);
   const [category, setCategory] = useState("All");
   const [displayCount, setDisplayCount] = useState(15); // Default number of books to display
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
     const fetchBooks = async () => {
       try {
         const response = await axios.get("/main/books/with-genres/");
@@ -66,6 +72,7 @@ const MainPage = () => {
     };
 
     fetchBooks();
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Filter books based on selected category
@@ -111,8 +118,6 @@ const MainPage = () => {
       averageRating: calculateMeanRating(book.reviews),
     }))
     .sort((a, b) => b.averageRating - a.averageRating); // Sort books by rating in descending order
-
-  const screenWidth = window.innerWidth;
 
   return (
     <div>
