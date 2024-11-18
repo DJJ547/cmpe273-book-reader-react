@@ -17,7 +17,7 @@ import "semantic-ui-css/semantic.min.css";
 import "./styles.css";
 
 import { formatMysqlTimestamp } from "../utils/timestampConvertors";
-import { isColorLight, getIconColor } from "../utils/colorHelpers";
+import { isColorLight, getBackgroundColor } from "../utils/colorHelpers";
 
 import ReadingListWindowCRUD from "../components/listHistory/ReadingListWindowCRUD";
 import ConfirmationWindow from "../components/listHistory/ConfirmationWindow";
@@ -202,6 +202,7 @@ const ReadingLists = () => {
   };
 
   const handleAddListClick = () => {
+    console.log(isEditing)
     setIsEditing(false);
     setShowCrudList(true);
   };
@@ -406,7 +407,7 @@ const ReadingLists = () => {
                       <span
                         className="material-icons"
                         style={{
-                          color: getIconColor(item.flag_color),
+                          color: getBackgroundColor(item.flag_color),
                           fontSize: "27px",
                           alignItems: "center",
                           padding: "0.5em",

@@ -12,6 +12,7 @@ import Login from "./pages/auth/Login";
 // import Signup from "./pages/auth/Signup";
 import ReadingLists from "./pages/ReadingLists";
 import ReadingList from "./pages/ReadingList";
+import Library from "./pages/Library";
 import TestGetBookContent from "./components/test/TestGetBookContent";
 // ... other imports
 
@@ -25,6 +26,7 @@ export default function App() {
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
         <Route path="/readinglists/:userId/" element={<ReadingLists />} />
         <Route path="/readinglists/:userId/readinglist/:listId" element={<ReadingList />} />
+        <Route path="/library/:userId/" element={<Library/>} />
         {/* <Route path="/" element={<Main />} /> */}
         {/* <Route path="/test" element={<Test />} /> */}
       </Routes>

@@ -1,4 +1,4 @@
-export const getIconColor = (colorCode) => {
+export const getBackgroundColor = (colorCode) => {
   // Convert the hex color to RGB
   const hex = colorCode.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);

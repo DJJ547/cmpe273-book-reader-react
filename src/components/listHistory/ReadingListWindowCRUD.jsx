@@ -23,7 +23,7 @@ const ReadingListWindowCRUD = ({
 }) => {
   const [isEditing, setIsEditing] = useState(isEdit);
   const [inputList, setInputList] = useState({
-    id: currentList.id,
+    id: isEdit ? currentList.id: null,
     icon: isEdit ? initialIcon : "", 
     color: isEdit ? initialColor : "",
     name: isEdit ? initialName : "",
