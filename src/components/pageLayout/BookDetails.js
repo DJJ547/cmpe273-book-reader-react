@@ -333,24 +333,12 @@ const BookDetails = () => {
         indicatorColor="primary"
         style={{ marginTop: "20px" }}
       >
-        <Tab label="Overview" />
         <Tab label="Table of Contents" />
         <Tab label="Reviews" />
       </Tabs>
 
-      {/* Overview Section */}
-      <Box hidden={value !== 0}>
-        <Typography
-          variant="h6"
-          style={{ fontWeight: "bold", marginTop: "20px" }}
-        >
-          Story Overview:
-        </Typography>
-        <Typography variant="body2">{book.book_description}</Typography>
-      </Box>
-
       {/* Table of Contents Section */}
-      <Box hidden={value !== 1}>
+      <Box hidden={value !== 0}>
         <List style={{ maxHeight: screenWidth * 0.4, overflow: "auto" }}>
           {book.chapters &&
             book.chapters.map((chapter, index) => (
@@ -368,7 +356,7 @@ const BookDetails = () => {
 
       {/* Reviews Section */}
       <Box
-        hidden={value !== 2}
+        hidden={value !== 1}
         style={{ maxHeight: screenWidth * 0.4, overflowY: "auto" }}
       >
         <Typography
