@@ -14,6 +14,7 @@ import {
   Dropdown,
   Header,
   Loader,
+  Progress,
 } from "semantic-ui-react";
 import axios from "axios";
 
@@ -218,19 +219,33 @@ const Library = () => {
     } else if (filterOption === "author") {
       return filteredBooks.sort((a, b) => a.author.localeCompare(b.author));
     } else if (filterOption === "recent") {
-      if (
-        filteredBooks &&
-        filteredBooks.length > 0 &&
-        filteredBooks[0].hasOwnProperty("added_at")
-      ) {
-        return filteredBooks.sort(
-          (a, b) => new Date(b.added_at) - new Date(a.added_at)
-        );
-      } else {
+      if ("History" in activeMenuItem) {
         return filteredBooks.sort(
           (a, b) => new Date(b.last_read_at) - new Date(a.last_read_at)
         );
+      } else if ("Wishlist" in activeMenuItem) {
+        return filteredBooks.sort(
+          (a, b) =>
+            new Date(b.wishlist_added_at) - new Date(a.wishlist_added_at)
+        );
+      } else {
+        return filteredBooks.sort(
+          (a, b) => new Date(b.added_at) - new Date(a.added_at)
+        );
       }
+      //   if (
+      //     filteredBooks &&
+      //     filteredBooks.length > 0 &&
+      //     filteredBooks[0].hasOwnProperty("added_at")
+      //   ) {
+      //     return filteredBooks.sort(
+      //       (a, b) => new Date(b.added_at) - new Date(a.added_at)
+      //     );
+      //   } else {
+      //     return filteredBooks.sort(
+      //       (a, b) => new Date(b.last_read_at) - new Date(a.last_read_at)
+      //     );
+      //   }
     } else {
       return filteredBooks;
     }
@@ -823,7 +838,6 @@ const Library = () => {
                     key={index}
                     style={{
                       width: "250px",
-                      height: "460px",
                       margin: "15px",
                     }}
                   >
@@ -855,24 +869,72 @@ const Library = () => {
                     </Card.Content>
 
                     <Card.Content>
-                      <Card.Header>{book.book_name}</Card.Header>
-                      <Card.Meta>{book.author}</Card.Meta>
-                      {book.genres.map((genre, index) => (
-                        <div
-                          key={index}
+                      <div
+                        style={{
+                          overflowX: "auto",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                          paddingBottom: "4px",
+                        }}
+                      >
+                        <Card.Header
                           style={{
                             display: "inline-block",
-                            borderRadius: "8px",
-                            border: "1px solid #ccc",
-                            padding: "4px 8px",
-                            margin: "4px",
-                            color: "gray",
-                            fontSize: "12px",
+                            fontSize: "1.5em",
+                            fontWeight: "bold",
+                            textAlign: "center",
+                            color: "#333",
+                            padding: "10px 0",
+                            borderBottom: "2px solid #ddd",
+                            marginBottom: "10px",
                           }}
                         >
-                          {genre}
-                        </div>
-                      ))}
+                          {book.book_name}
+                        </Card.Header>
+                      </div>
+                      <Card.Meta>{book.author}</Card.Meta>
+                      <div
+                        style={{
+                          display: "flex",
+                          overflowX: "auto",
+                          whiteSpace: "nowrap",
+                          gap: "4px",
+                          paddingBottom: "4px",
+                        }}
+                      >
+                        {book.genres.map((genre, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: "inline-block",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              padding: "4px 8px",
+                              margin: "4px",
+                              color: "gray",
+                              fontSize: "12px",
+                            }}
+                          >
+                            {genre}
+                          </div>
+                        ))}
+                      </div>
+                    </Card.Content>
+                    <Card.Content>
+                      <Progress
+                        percent={parseFloat(
+                          Math.min(
+                            Math.max(
+                              (book.current_chapter / book.num_of_chapters) *
+                                100,
+                              0
+                            ),
+                            100
+                          ).toFixed(2)
+                        )}
+                        progress
+                        indicating
+                      />
                     </Card.Content>
                     <Card.Content>
                       <div
