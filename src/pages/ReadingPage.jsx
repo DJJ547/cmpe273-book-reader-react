@@ -1,5 +1,6 @@
 import React from "react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
+import axios from "axios";
 import {SettingsContext} from "../components/context/SettingsContext";
 import SideBar from "../components/SideBar";
 
