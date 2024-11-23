@@ -70,6 +70,8 @@ const Library = () => {
 
   const [activeShelvesAccordion, setActiveShelvesAccordion] = useState(true);
 
+  const [currentBook, setCurrentBook] = useState(null);
+
   //Library Data
   const [allShelvesWithBooks, setAllShelvesWithBooks] = useState([]);
   const [numOfShelves, setNumOfShelves] = useState(0);
@@ -89,6 +91,13 @@ const Library = () => {
     useState("#FFFFFF");
   const [createEditShelfWindowIsOpen, setCreateEditShelfWindowIsOpen] =
     useState(false);
+
+  //Move Shelf To Another Shelf Window States
+  const [selectedShelves, setSelectedShelves] = useState([]);
+  const [
+    moveShelfToAnotherShelfWindowIsOpen,
+    setMoveShelfToAnotherShelfWindowIsOpen,
+  ] = useState(false);
 
   const [filterOption, setFilterOption] = useState("recent");
   const [shelvesMoreHoveredId, setShelvesMoreHoveredId] = useState(null);
@@ -166,25 +175,81 @@ const Library = () => {
     }
   };
 
+  //Move Shelf to Another Shelf
+  const handleMoveShelfToAnotherShelfConformClick = async () => {
+    try {
+      // Remove book from unselected shelves
+      const unselectedShelves = allShelvesWithBooks
+        .filter((shelf) => !selectedShelves.includes(shelf.id))
+        .filter((shelf) =>
+          shelf.books.some((b) => b.book_id === currentBook.book_id)
+        );
+
+      await Promise.all(
+        unselectedShelves.map((shelf) =>
+          removeBookFromShelf(shelf.id, currentBook.book_id)
+        )
+      );
+
+      // Add book to selected shelves
+      const newlySelectedShelves = selectedShelves.filter(
+        (shelfId) =>
+          !allShelvesWithBooks
+            .find((shelf) => shelf.id === shelfId)
+            .books.some((b) => b.book_id === currentBook.book_id)
+      );
+
+      await Promise.all(
+        newlySelectedShelves.map((shelfId) =>
+          addBookToShelf(shelfId, currentBook.book_id)
+        )
+      );
+      console.log("after toggle box:", allShelvesWithBooks);
+      setMoveShelfToAnotherShelfWindowIsOpen(false);
+      setSelectedShelves([]);
+      setCurrentBook(null);
+    } catch (error) {
+      console.error("Error saving shelves:", error);
+      setError("There was a problem saving the shelves.");
+    }
+  };
+
+  const handleShelfCheckboxToggle = (shelfId) => {
+    if (selectedShelves.includes(shelfId)) {
+      setSelectedShelves(selectedShelves.filter((id) => id !== shelfId));
+    } else {
+      setSelectedShelves([...selectedShelves, shelfId]);
+    }
+  };
+
   //Card More Options Click
-  const handleCardMoreOptionsClick = (option, book_id) => {
+  const handleCardMoreOptionsClick = (option, book) => {
     if (activeMenuItem.History) {
       if (option === "about") {
         navigate(`/`);
       } else if (option === "remove") {
-        removeBookFromHistory(book_id);
+        removeBookFromHistory(book.book_id);
       }
     } else if (activeMenuItem.Wishlist) {
       if (option === "about") {
         navigate(`/`);
       } else if (option === "remove") {
-        removeBookFromWishlist(book_id);
+        removeBookFromWishlist(book.book_id);
       }
     } else {
       if (option === "about") {
         navigate(`/`);
+      } else if (option === "move") {
+        setCurrentBook(book);
+        const associatedShelves = allShelvesWithBooks
+          .filter((shelf) =>
+            shelf.books.some((b) => b.book_id === book.book_id)
+          )
+          .map((shelf) => shelf.id);
+        setSelectedShelves(associatedShelves);
+        setMoveShelfToAnotherShelfWindowIsOpen(true);
       } else if (option === "remove") {
-        removeBookFromShelf(Object.values(activeMenuItem)[0].id, book_id);
+        removeBookFromShelf(Object.values(activeMenuItem)[0].id, book.book_id);
       }
     }
   };
@@ -230,22 +295,9 @@ const Library = () => {
         );
       } else {
         return filteredBooks.sort(
-          (a, b) => new Date(b.added_at) - new Date(a.added_at)
+          (a, b) => new Date(b.shelf_added_at) - new Date(a.shelf_added_at)
         );
       }
-      //   if (
-      //     filteredBooks &&
-      //     filteredBooks.length > 0 &&
-      //     filteredBooks[0].hasOwnProperty("added_at")
-      //   ) {
-      //     return filteredBooks.sort(
-      //       (a, b) => new Date(b.added_at) - new Date(a.added_at)
-      //     );
-      //   } else {
-      //     return filteredBooks.sort(
-      //       (a, b) => new Date(b.last_read_at) - new Date(a.last_read_at)
-      //     );
-      //   }
     } else {
       return filteredBooks;
     }
@@ -310,6 +362,10 @@ const Library = () => {
         const added_shelf = response.data.data;
         setAllShelvesWithBooks([...allShelvesWithBooks, added_shelf]);
         setNumOfShelves((prevNumOfShelves) => prevNumOfShelves + 1);
+        setShelvesNumOfBooks((prev) => ({
+          ...prev,
+          [added_shelf.id]: added_shelf.books ? added_shelf.books.length : 0,
+        }));
       }
       console.log("add shelf request output: ", response.data);
       return response.data.result;
@@ -321,16 +377,17 @@ const Library = () => {
 
   const editShelf = async (shelfData) => {
     try {
+      console.log(shelfData);
       const response = await axios.put(`${api_url}library/edit_shelf/`, {
         user_id: savedUser.id,
         shelf: shelfData,
       });
       console.log(response.data);
       if (response.data.result) {
-        const added_shelf = response.data.data;
+        const edited_shelf = response.data.data;
         setAllShelvesWithBooks((prevShelves) =>
           prevShelves.map((shelf) =>
-            shelf.id === added_shelf.id ? { ...shelf, ...added_shelf } : shelf
+            shelf.id === edited_shelf.id ? { ...shelf, ...edited_shelf } : shelf
           )
         );
       }
@@ -364,19 +421,61 @@ const Library = () => {
     }
   };
 
+  const addBookToShelf = async (shelf_id, book_id) => {
+    try {
+      const response = await axios.post(
+        `${api_url}library/add_book_to_shelf/`,
+        {
+          user_id: savedUser.id,
+          shelf_id: shelf_id,
+          book_id: book_id,
+        }
+      );
+      const result = response.data.result;
+      if (result) {
+        const added_book = response.data.data;
+        setAllShelvesWithBooks((prevShelves) => {
+          return prevShelves.map((shelf) => {
+            if (shelf.id === shelf_id) {
+              return {
+                ...shelf,
+                books: [...shelf.books, added_book],
+              };
+            }
+            return shelf;
+          });
+        });
+        setShelvesNumOfBooks((prevShelvesNumOfBooks) => {
+          const updatedShelvesNumOfBooks = { ...prevShelvesNumOfBooks };
+          if (updatedShelvesNumOfBooks[shelf_id] !== undefined) {
+            updatedShelvesNumOfBooks[shelf_id] += 1;
+          }
+          return updatedShelvesNumOfBooks;
+        });
+        console.log("Successfully added book to shelf");
+      }
+    } catch (error) {
+      console.error("Error adding adding book to shelf:", error);
+      setError("There was a problem adding book to shelf.");
+    }
+  };
+
   const removeBookFromShelf = async (shelf_id, book_id) => {
+    console.log(
+      `user_id: ${savedUser.id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
+    );
     try {
       const response = await axios.delete(
         `${api_url}library/remove_book_from_shelf/`,
         {
           params: {
+            user_id: savedUser.id,
             shelf_id: shelf_id,
             book_id: book_id,
           },
         }
       );
-      const result = response.data.data;
-      console.log("remove book from shelf request result: ", result);
+      const result = response.data.result;
       if (result) {
         const updatedShelves = allShelvesWithBooks.map((shelf) =>
           shelf.id === shelf_id
@@ -398,6 +497,7 @@ const Library = () => {
           }
           return updatedShelvesNumOfBooks;
         });
+        console.log("Successfully removed book from shelf");
       }
     } catch (error) {
       console.error("Error removing book from shelf:", error);
@@ -468,16 +568,16 @@ const Library = () => {
   //==================================================Use Effect======================================================
   useEffect(() => {
     fetchLibraryData();
-    if (error) {
-      // Automatically clear the error after 5 seconds
-      const timer = setTimeout(() => {
-        setError("");
-      }, 5000);
+    // if (error) {
+    //   // Automatically clear the error after 5 seconds
+    //   const timer = setTimeout(() => {
+    //     setError("");
+    //   }, 5000);
 
-      // Cleanup the timer if the component unmounts or error changes
-      return () => clearTimeout(timer);
-    }
-  }, [error, setError]);
+    //   // Cleanup the timer if the component unmounts or error changes
+    //   return () => clearTimeout(timer);
+    // }
+  }, []);
 
   return (
     <div
@@ -765,7 +865,7 @@ const Library = () => {
                             </Dropdown>
                           </div>
                         ) : (
-                          <span>{shelf.books.length}</span>
+                          <span>{shelvesNumOfBooks[shelf.id]}</span>
                         )}
                       </div>
                     </Menu.Item>
@@ -960,10 +1060,7 @@ const Library = () => {
                             ).map((option) => (
                               <Dropdown.Item
                                 onClick={() =>
-                                  handleCardMoreOptionsClick(
-                                    option.value,
-                                    book.book_id
-                                  )
+                                  handleCardMoreOptionsClick(option.value, book)
                                 }
                                 key={option.key}
                                 text={option.text}
@@ -999,7 +1096,7 @@ const Library = () => {
           disabled={currentPage === totalPages}
         />
       </div>
-
+      {/* Create Edit Shelf Window Modal */}
       <Modal
         open={createEditShelfWindowIsOpen}
         onClose={() => setCreateEditShelfWindowIsOpen(false)}
@@ -1094,7 +1191,6 @@ const Library = () => {
               </Dropdown>
             </div>
 
-            {/* Color Selection Dropdown */}
             <div
               style={{
                 display: "flex",
@@ -1176,6 +1272,69 @@ const Library = () => {
           </Button>
         </Modal.Actions>
       </Modal>
+      {/* Move Shelf To Another Shelf Window */}
+      <Modal
+        open={moveShelfToAnotherShelfWindowIsOpen}
+        onClose={() => setMoveShelfToAnotherShelfWindowIsOpen(false)}
+        size="tiny"
+        closeIcon
+      >
+        <Modal.Header>Edit shelves for "{currentBook?.book_name}"</Modal.Header>
+        <Modal.Content>
+          <div
+            style={{
+              maxHeight: "200px", // Limit height for scrollable content
+              overflowY: "auto", // Enable vertical scrolling
+              display: "flex", // Flexbox container
+              flexDirection: "column", // Stack items vertically
+              alignItems: "center", // Center items horizontally
+            }}
+          >
+            {allShelvesWithBooks.map((shelf) => (
+              <div
+                key={shelf.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedShelves.includes(shelf.id)}
+                  onChange={() => handleShelfCheckboxToggle(shelf.id)}
+                />
+                <label style={{ marginLeft: "10px" }}>{shelf.name}</label>
+              </div>
+            ))}
+          </div>
+        </Modal.Content>
+        <Modal.Actions
+          style={{
+            display: "flex", // Flexbox for alignment
+            justifyContent: "space-between", // Space between buttons
+            alignItems: "center", // Center buttons vertically
+          }}
+        >
+          <Button
+            onClick={() => handleCreateEditShelfClick("create")}
+            style={{ alignSelf: "flex-start" }} // Align "Create Shelf" to the left
+          >
+            Create Shelf
+          </Button>
+          <div>
+            <Button
+              onClick={() => setMoveShelfToAnotherShelfWindowIsOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button primary onClick={handleMoveShelfToAnotherShelfConformClick}>
+              Save
+            </Button>
+          </div>
+        </Modal.Actions>
+      </Modal>
+      ;
     </div>
   );
 };
