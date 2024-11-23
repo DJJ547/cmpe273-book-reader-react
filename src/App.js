@@ -15,8 +15,11 @@ import Test from "./pages/Test";
 import ReadingPage from "./pages/ReadingPage";
 import Reader from "./pages/Reader";
 // import Main from "./pages/Main";
-// import Login from "./pages/auth/Login";
+import Login from "./pages/auth/Login";
 // import Signup from "./pages/auth/Signup";
+import Library from "./pages/Library";
+import TestGetBookContent from "./components/test/TestGetBookContent";
+// ... other imports
 
 export default function App() {
   const location = useLocation();
@@ -27,8 +30,10 @@ export default function App() {
       <Routes>
         <Route path="/test" element={<Test />} />
         <Route path="/readingpage" element={<Reader />} />
+        {/* <Route path="/book/:id" element={<TestGetBookContent />} /> */}
         {/* <Route path="/auth/login" element={<Login />} /> */}
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
+        <Route path="/library/:userId/" element={<Library/>} />
         {/* <Route path="/" element={<Main />} /> */}
         {/* <Route path="/test" element={<Test />} /> */}
       </Routes>
