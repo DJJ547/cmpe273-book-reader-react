@@ -26,10 +26,6 @@ const api_url = process.env.REACT_APP_BACKEND_LOCALHOST;
 
 const userData = {
   id: 1,
-  name: "Jiajun Dai",
-  email: "djj953@gmail.com",
-  avatar: undefined,
-  token: "12345",
 };
 if (!localStorage.getItem("user")) {
   localStorage.setItem("user", JSON.stringify(userData));
@@ -516,7 +512,7 @@ const Library = () => {
           },
         }
       );
-      const result = response.data.data;
+      const result = response.data.result;
       console.log("remove book from wishlist request result: ", result);
       if (result) {
         setAllWishlistBooks(
@@ -546,7 +542,7 @@ const Library = () => {
           },
         }
       );
-      const result = response.data.data;
+      const result = response.data.result;
       console.log("remove book from history request result: ", result);
       if (result) {
         setAllHistoryBooks(
@@ -603,7 +599,7 @@ const Library = () => {
             <p>{error}</p>
           </Message>
         )}
-        <h1>My Library</h1>
+        <Header style={{fontSize: "30px"}}>My Library</Header>
         <a style={{ marginLeft: "20px", fontSize: "16px" }}>
           <Icon name="clone outline" /> More Books
         </a>

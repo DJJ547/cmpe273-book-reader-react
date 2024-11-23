@@ -39,6 +39,14 @@ export const calculateMeanRating = (reviews) => {
   return 0;
 };
 
+const userData = {
+  id: 1,
+};
+if (!localStorage.getItem("user")) {
+  localStorage.setItem("user", JSON.stringify(userData));
+}
+const savedUser = JSON.parse(localStorage.getItem("user"));
+
 const BookDetails = () => {
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
@@ -58,12 +66,10 @@ const BookDetails = () => {
 
   // Function to handle adding/removing from wishlist
   const handleAddToWishlist = () => {
-    setIsInWishlist(!isInWishlist); // Toggle the wishlist state
-    // Optionally, you can add or remove the book from the wishlist (e.g., update the state, localStorage, etc.)
     if (isInWishlist) {
-      console.log("Book removed from wishlist");
+      removeBookFromWishlist();
     } else {
-      console.log("Book added to wishlist");
+      addBookToWishlist();
     }
   };
   const fetchBook = async () => {
@@ -79,6 +85,94 @@ const BookDetails = () => {
       console.error("Error fetching book data:", error);
     }
   };
+
+  const fetchShelves = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/library/get_library_data/`,
+        {
+          params: { user_id: savedUser.id },
+        }
+      );
+    } catch (error) {
+      console.error("Error fetching shelves data:", error);
+    }
+  };
+
+  // const addBookToShelf = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       `http://127.0.0.1:8000/library/add_book_to_shelf/`,
+  //       {
+  //         user_id: userData.id,
+  //         shelf_id: ,
+  //         book_id: book.id,
+  //       }
+  //     );
+  //     if (response.data.result) {
+  //       //do something
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding book to shelf:", error);
+  //   }
+  // }
+
+  // const removeBookFromShelf = async () => {
+  //   try {
+  //     const response = await axios.delete(
+  //       `http://127.0.0.1:8000/library/remove_book_from_shelf/`,
+  //       {
+  //         params: {
+  //           user_id: userData.id,
+  //           shelf_id: ,
+  //           book_id: book.id,
+  //         },
+  //       }
+  //     );
+  //     if (response.data.result) {
+  //       //do something
+  //     }
+  //   } catch (error) {
+  //     console.error("Error removing book from shelf:", error);
+  //   }
+  // }
+
+  const addBookToWishlist = async () => {
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/library/add_book_to_wishlist/`,
+        {
+          user_id: userData.id,
+          book_id: book.id,
+        }
+      );
+      if (response.data.result) {
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      console.error("Error adding book to wishlist:", error);
+    }
+  };
+
+  const removeBookFromWishlist = async () => {
+    try {
+      const response = await axios.delete(
+        `http://127.0.0.1:8000/library/remove_book_from_wishlist/`,
+        {
+          params: {
+            user_id: userData.id,
+            book_id: book.id,
+          },
+        }
+      );
+      if (response.data.result) {
+        setIsInWishlist(false);
+      }
+    } catch (error) {
+      console.error("Error removing book from wishlist:", error);
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
