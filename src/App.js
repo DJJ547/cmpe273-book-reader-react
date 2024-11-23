@@ -28,14 +28,14 @@ export default function App() {
       {location.pathname !== '/readingpage' && <Navbar />}
 
       <Routes>
-        <Route path="/test" element={<Test />} />
+        {/* <Route path="/test" element={<Test />} /> */}
+        <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/book/:id" element={<BookDetails />} />
+        <Route path="/library" element={<Library/>} />
         <Route path="/readingpage" element={<Reader />} />
-        {/* <Route path="/book/:id" element={<TestGetBookContent />} /> */}
         {/* <Route path="/auth/login" element={<Login />} /> */}
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
-        <Route path="/library/:userId/" element={<Library/>} />
-        {/* <Route path="/" element={<Main />} /> */}
-        {/* <Route path="/test" element={<Test />} /> */}
       </Routes>
     </div>
   );

@@ -71,7 +71,6 @@ const Navbar = () => {
         backgroundColor: "#ADD8E6",
         color: "black",
         fontSize,
-        position: "fixed",
         top: "0",
         left: "0",
         right: "0",
@@ -90,6 +89,9 @@ const Navbar = () => {
       <Menu.Menu position="left">
         <Menu.Item as={Link} to="/">
           Home
+        </Menu.Item>
+        <Menu.Item as={Link} to="/library">
+          Library
         </Menu.Item>
       </Menu.Menu>
       <div
