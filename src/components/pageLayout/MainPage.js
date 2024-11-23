@@ -16,6 +16,8 @@ import Slider from "react-slick"; // Import the slider
 import { Link } from "react-router-dom"; // Import Link for navigation
 import axios from "axios";
 import { calculateMeanRating } from "./BookDetails";
+import "semantic-ui-css/semantic.min.css";
+
 const SampleNextArrow = (props) => {
   const { className, style, onClick } = props;
   return (
@@ -52,8 +54,14 @@ const MainPage = () => {
   const [books, setBooks] = useState([]);
   const [category, setCategory] = useState("All");
   const [displayCount, setDisplayCount] = useState(15); // Default number of books to display
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
     const fetchBooks = async () => {
       try {
         const response = await axios.get("/main/books/with-genres/");
@@ -64,6 +72,7 @@ const MainPage = () => {
     };
 
     fetchBooks();
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Filter books based on selected category
@@ -109,70 +118,97 @@ const MainPage = () => {
       averageRating: calculateMeanRating(book.reviews),
     }))
     .sort((a, b) => b.averageRating - a.averageRating); // Sort books by rating in descending order
+
   return (
-    <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
+    <div>
+      <div style={{ padding: screenWidth <= 768 ? "6%" : "2%" }}></div>
+      <Typography variant={screenWidth <= 768 ? "h5" : "h4"} gutterBottom>
         Featured Books
       </Typography>
 
-      <ToggleButtonGroup
-        value={category}
-        exclusive
-        onChange={(e, newCategory) => setCategory(newCategory)}
-        aria-label="book category"
-        style={{ marginBottom: "20px" }}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center", // Align vertically
+          "margin-bottom": "-4%",
+        }}
       >
-        {[
-          "All",
-          "Thriller",
-          "Post-apocalyptic",
-          "Fantasy",
-          "Comedy",
-          "Sci-Fi",
-          "Romance",
-          "Action",
-          "Historical",
-          "Josei",
-          "Xuanhuan",
-          "Mystery",
-          "Crime",
-          "Martial Arts",
-          "Adventure",
-        ].map((genre) => (
-          <ToggleButton
-            key={genre}
-            value={genre}
-            aria-label={genre.toLowerCase()}
-            style={{
-              borderRadius: "20px",
-              margin: "0 5px",
-              backgroundColor: category === genre ? "#3f51b5" : "#f1f1f1",
-              color: category === genre ? "white" : "black",
-            }}
-          >
-            {genre}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
-
-      <FormControl
-        variant="outlined"
-        style={{ marginBottom: "20px", minWidth: 120 }}
-      >
-        <InputLabel id="display-count-label">Books to Display</InputLabel>
-        <Select
-          labelId="display-count-label"
-          value={displayCount}
-          onChange={(e) => setDisplayCount(e.target.value)}
-          label="Books to Display"
+        <ToggleButtonGroup
+          value={category}
+          exclusive
+          onChange={(e, newCategory) => setCategory(newCategory)}
+          aria-label="book category"
+          style={{
+            marginBottom: "5%",
+            overflowX: "auto", // Horizontal scroll for overflow
+            width: screenWidth * 0.75,
+            whiteSpace: "nowrap", // Prevent wrapping of buttons
+            maxHeight: "150px", // Set a max height (adjust as needed)
+            display: "flex",
+            flexWrap: "nowrap", // Prevent wrapping of buttons onto the next line
+          }}
         >
-          {[5, 10, 15, 20, 100].map((count) => (
-            <MenuItem key={count} value={count}>
-              {count}
-            </MenuItem>
+          {[
+            "All",
+            "Thriller",
+            "Post-apocalyptic",
+            "Fantasy",
+            "Comedy",
+            "Sci-Fi",
+            "Romance",
+            "Action",
+            "Historical",
+            "Josei",
+            "Xuanhuan",
+            "Mystery",
+            "Crime",
+            "Martial Arts",
+            "Adventure",
+          ].map((genre) => (
+            <ToggleButton
+              key={genre}
+              value={genre}
+              aria-label={genre.toLowerCase()}
+              style={{
+                borderRadius: "50px", // Give a rounded but oval shape
+                margin: screenWidth <= 768 ? "0 0.5em" : "0 0.75em", // Responsive margin based on screen size
+                width: screenWidth <= 768 ? "70vw" : "200px", // Adjust width for mobile and desktop
+                height: screenWidth <= 768 ? "35px" : "50px", // Adjust height for mobile and desktop
+                backgroundColor: category === genre ? "#3f51b5" : "#f1f1f1",
+                color: category === genre ? "white" : "black",
+                fontSize: screenWidth <= 480 ? "0.8em" : "1em", // Adjust font size for smaller screens
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {genre}
+            </ToggleButton>
           ))}
-        </Select>
-      </FormControl>
+        </ToggleButtonGroup>
+        &nbsp;&nbsp;
+        <FormControl
+          variant="outlined"
+          style={{
+            marginBottom: "4%", // Smaller margin on mobile, larger on desktop
+            minWidth: screenWidth * 0.15, // Adjust minWidth for mobile screens
+          }}
+        >
+          <InputLabel id="display-count-label">Books to Display</InputLabel>
+          <Select
+            labelId="display-count-label"
+            value={displayCount}
+            onChange={(e) => setDisplayCount(e.target.value)}
+            label="Books to Display"
+          >
+            {[5, 10, 15, 20, 100].map((count) => (
+              <MenuItem key={count} value={count}>
+                {count}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
 
       <Slider {...sliderSettings}>
         {displayedBooks.length > 0 ? (
@@ -184,8 +220,11 @@ const MainPage = () => {
             >
               <Card
                 style={{
-                  width: window.innerWidth * 0.15,
-                  margin: "10px",
+                  width:
+                    screenWidth <= 768
+                      ? screenWidth * 0.25 * (3 / 4)
+                      : screenWidth * 0.2 * (3 / 4),
+                  height: screenWidth * 0.25,
                   cursor: "pointer",
                   borderRadius: "20px",
                   overflow: "hidden",
@@ -197,8 +236,14 @@ const MainPage = () => {
                     image={book.book_cover}
                     alt={book.book_name}
                     style={{
-                      width: window.innerWidth * 0.2 * (3 / 4), // Responsive width
-                      height: window.innerWidth * 0.2, // Maintain 4:3 aspect ratio
+                      width:
+                        screenWidth <= 768
+                          ? screenWidth * 0.25 * (3 / 4)
+                          : screenWidth * 0.2 * (3 / 4), // Responsive width
+                      height:
+                        screenWidth <= 768
+                          ? screenWidth * 0.25
+                          : screenWidth * 0.2, // Maintain 4:3 aspect ratio
                       objectFit: "cover",
                       borderRadius: "20px 20px 0 0",
                     }}
@@ -219,7 +264,13 @@ const MainPage = () => {
           ))
         ) : (
           <Card
-            style={{ margin: "10px", borderRadius: "20px", overflow: "hidden" }}
+            style={{
+              margin: "10px",
+              borderRadius: "20px",
+              overflow: "hidden",
+              width: screenWidth * 0.2 * (3 / 4), // Responsive width
+              height: screenWidth * 0.2, // Maintain 4:3 aspect ratio
+            }}
           >
             <CardContent style={{ textAlign: "center" }}>
               <Typography variant="h6">No Books Found</Typography>
@@ -228,10 +279,19 @@ const MainPage = () => {
         )}
       </Slider>
 
-      <Typography variant="h4" gutterBottom style={{ marginTop: "40px" }}>
+      <Typography
+        variant={screenWidth <= 768 ? "h5" : "h4"}
+        gutterBottom
+        style={{ marginTop: "40px" }}
+      >
         Top Charts
       </Typography>
-      <div style={{ maxWidth: "90vw", margin: "0 auto" }}>
+      <div
+        style={{
+          maxWidth: "90vw",
+          margin: "0 auto",
+        }}
+      >
         <Grid2 container spacing={2}>
           {sortedBooks.slice(0, 9).map((book) => (
             <Grid2 item xs={12} sm={6} md={4} key={book.id}>
@@ -240,10 +300,13 @@ const MainPage = () => {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    padding: "10px",
+                    padding: "2.5%",
                     cursor: "pointer",
                     borderRadius: "20px",
-                    height: "200px",
+                    height:
+                      screenWidth <= 768
+                        ? screenWidth * 0.3
+                        : screenWidth * 0.1, // Maintain 4:3 aspect ratio
                     overflow: "hidden",
                   }}
                 >
@@ -255,8 +318,14 @@ const MainPage = () => {
                         objectFit: "cover",
                       }}
                       style={{
-                        width: window.innerWidth * 0.08 * (3 / 4), // Responsive width
-                        height: window.innerWidth * 0.08, // Maintain 4:3 aspect ratio
+                        width:
+                          screenWidth <= 768
+                            ? screenWidth * 0.3 * (3 / 4)
+                            : screenWidth * 0.1 * (3 / 4), // Responsive width
+                        height:
+                          screenWidth <= 768
+                            ? screenWidth * 0.3
+                            : screenWidth * 0.1, // Maintain 4:3 aspect ratio
                         objectFit: "cover",
                         borderRadius: "20px 20px 0 0",
                       }}
@@ -283,7 +352,9 @@ const MainPage = () => {
                       {book.author}
                     </Typography>
                     <Typography variant="body2" style={{ marginBottom: "4px" }}>
-                      {truncateDescription(book.book_description, 70)}
+                      {screenWidth <= 768
+                        ? truncateDescription(book.book_description, 50)
+                        : truncateDescription(book.book_description, 70)}
                     </Typography>
                     {/* Display the average rating */}
                     <Typography variant="body2" style={{ fontWeight: "bold" }}>

@@ -25,7 +25,7 @@ export default function App() {
   const location = useLocation();
   return (
     <div>
-      {location.pathname !== '/readingpage' && <Navbar />}
+      {location.pathname !== "/readingpage" && <Navbar />}
 
       <Routes>
         {/* <Route path="/test" element={<Test />} /> */}
@@ -33,7 +33,7 @@ export default function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/book/:id" element={<BookDetails />} />
         <Route path="/library" element={<Library/>} />
-        <Route path="/readingpage" element={<Reader />} />
+        <Route path="/readingpage/:id" element={<Reader />} />
         {/* <Route path="/auth/login" element={<Login />} /> */}
         {/* <Route path="/auth/signup" element={<Signup />} /> */}
       </Routes>

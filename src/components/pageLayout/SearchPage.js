@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useLocation, Link, useNavigate } from "react-router-dom"; // Import to handle URL query and Link
 import { calculateMeanRating } from "./BookDetails";
+import "semantic-ui-css/semantic.min.css";
 
 import axios from "axios"; // Import axios for API calls
 
@@ -20,8 +21,15 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true); // State for loading
   const [error, setError] = useState(""); // State for error handling
   const navigate = useNavigate(); // useNavigate for navigating back
-
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
   useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      setScreenHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
     const fetchBooks = async () => {
       try {
         setLoading(true); // Set loading to true before fetching
@@ -43,12 +51,14 @@ const SearchPage = () => {
     } else {
       setLoading(false); // Stop loading if there's no query
     }
+
+    return () => window.removeEventListener("resize", handleResize);
   }, [query]);
 
   return (
     <Container
       style={{
-        padding: "20px",
+        padding: screenWidth <= 768 ? "15%" : "4%",
         backgroundColor: "#f7f7f7",
         borderRadius: "8px",
       }}
@@ -79,7 +89,7 @@ const SearchPage = () => {
         <Grid2
           container
           spacing={3}
-          style={{ maxHeight: window.innerHeight * 0.7, overflowY: "auto" }}
+          style={{ maxHeight: screenHeight * 0.7, overflowY: "auto" }}
         >
           {books.length > 0 ? (
             books.map((book) => (
@@ -94,6 +104,11 @@ const SearchPage = () => {
                       borderRadius: "12px",
                       boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                       transition: "transform 0.3s",
+                      width:
+                        screenWidth <= 768
+                          ? "90vw"
+                          : screenWidth * 0.2 * (3 / 4), // Larger width on mobile
+                      height: screenWidth <= 768 ? "auto" : screenWidth * 0.25, // Auto height on mobile for flexibility
                       "&:hover": {
                         transform: "scale(1.05)",
                       },
@@ -105,30 +120,58 @@ const SearchPage = () => {
                         image={book.book_cover}
                         alt={book.book_name}
                         style={{
-                          width: window.innerWidth * 0.2 * (3 / 4), // Responsive width
-                          height: window.innerWidth * 0.2, // Maintain 4:3 aspect ratio
+                          width:
+                            screenWidth <= 768
+                              ? "100%"
+                              : screenWidth * 0.2 * (3 / 4), // Responsive width
+                          height:
+                            screenWidth <= 768 ? "auto" : screenWidth * 0.2, // Adjust height for mobile
                           objectFit: "cover",
                           borderRadius: "20px 20px 0 0",
                         }}
                       />
                     )}
-                    <CardContent>
+                    <CardContent
+                      style={{
+                        padding: screenWidth <= 768 ? "16px" : "16px", // Adjust padding for mobile
+                      }}
+                    >
                       <Typography
                         variant="h6"
-                        style={{ fontWeight: "bold", color: "#000" }}
+                        style={{
+                          fontWeight: "bold",
+                          color: "#000",
+                          fontSize: screenWidth <= 768 ? "1.6rem" : "1.5rem", // Adjust font size for mobile
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap", // Prevent overflow of text
+                        }}
                       >
                         {book.book_name}
                       </Typography>
-                      <Typography variant="subtitle1" color="textSecondary">
+
+                      <Typography
+                        variant="subtitle1"
+                        color="textSecondary"
+                        style={{
+                          fontSize: screenWidth <= 768 ? "1.2rem" : "1.1rem", // Adjust font size for mobile
+                          marginBottom: screenWidth <= 768 ? "10px" : "8px", // Adjust margin for spacing
+                          color: screenWidth <= 768 ? "#333" : "#555", // Adjust color for better visibility
+                        }}
+                      >
                         {book.author}
                       </Typography>
 
                       <Typography
                         variant="body2"
-                        style={{ fontWeight: "bold" }}
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: screenWidth <= 768 ? "1.2rem" : "1.1rem", // Adjust font size for mobile
+                          marginBottom: screenWidth <= 768 ? "10px" : "8px", // Adjust margin for spacing
+                          color: screenWidth <= 768 ? "#333" : "#555", // Adjust color for better visibility
+                        }}
                       >
-                        Rating:
-                        {calculateMeanRating(book.reviews)}
+                        Rating: {calculateMeanRating(book.reviews)}
                       </Typography>
                     </CardContent>
                   </Card>
