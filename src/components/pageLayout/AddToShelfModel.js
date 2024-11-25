@@ -19,7 +19,7 @@ if (!localStorage.getItem("user")) {
 }
 const savedUser = JSON.parse(localStorage.getItem("user"));
 
-export const ShelfModal = ({ isOpen, id, onClose }) => {
+export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
   const fetchShelves = async () => {
     try {
       await axios
@@ -48,19 +48,25 @@ export const ShelfModal = ({ isOpen, id, onClose }) => {
     try {
       let shelfToAdd = {};
       if (newShelfName) {
-        const addShelfresponse = await axios.post(`/library/add_shelf/`, {
-          user_id: savedUser.id,
-          shelf: {
-            name: newShelfName,
-            icon: selectedIcon,
-            background_color: selectedColor,
-          },
-        });
-
-        if (response.data.result) {
-          fetchShelves();
-        }
-        shelfToAdd = shelves.find((shelf) => shelf.name === newShelfName);
+        const addShelfresponse = await axios
+          .post(`/library/add_shelf/`, {
+            user_id: savedUser.id,
+            shelf: {
+              name: newShelfName,
+              icon: selectedIcon,
+              background_color: selectedColor,
+            },
+          })
+          .then((SUCCESS) => {
+            fetchShelves();
+            shelfToAdd = { ...SUCCESS.data.data };
+          })
+          .catch((e) => {
+            console.log("add new shelf err", e);
+            alert(
+              "Failed to create shelf, it is already exist in your library"
+            );
+          });
       } else {
         shelfToAdd = shelves.find((shelf) => shelf.name === selectedShelf);
       }
@@ -74,16 +80,17 @@ export const ShelfModal = ({ isOpen, id, onClose }) => {
       if (response.data.result) {
         alert(
           `The book has been saved to ${
-            shelfToAdd ? shelfToAdd.name : newShelfName
+            newShelfName ? newShelfName : shelfToAdd.name
           }`
         );
         setNewShelfName("");
         setSelectedColor("");
         setSelectedIcon("");
+        fetchAddedToLibrary();
       }
     } catch (error) {
       console.error("Error adding book to shelf:", error);
-      alert(error);
+      alert("Failed to add this book, it is already exist in this shelf");
     }
   };
 

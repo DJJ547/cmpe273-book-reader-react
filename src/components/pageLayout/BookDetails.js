@@ -30,6 +30,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 import { ShelfModal } from "./AddToShelfModel";
+
+import { RemoveShelfModal } from "./RemoveShelfModal";
 // Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
   if (reviews && reviews.length > 0) {
@@ -64,7 +66,10 @@ const BookDetails = () => {
 
   const [isInWishlist, setIsInWishlist] = useState(false); // Track if the book is in the wishlist
   const [isShelfModelOpen, setIsShelfModelOpen] = useState(false);
+  const [isRemoveModelOpen, setIsRemoveModelOpen] = useState(false);
+
   const [isBookInShelf, setIsBookInShelf] = useState(false);
+  const [addedToLibraryShelves, setAddedToLibraryShelves] = useState([]);
   // Function to handle adding/removing from wishlist
   const handleAddToWishlist = () => {
     if (isInWishlist) {
@@ -89,32 +94,20 @@ const BookDetails = () => {
 
   const fetchAddedToLibrary = async () => {
     try {
-      const response = await axios.post(`/library//`, {
-        user_id: userData.id,
-        book_id: id,
-      });
+      const response = await axios.get(
+        `/library/get_shelves_with_current_book/?user_id=${userData.id}&book_id=${id}`
+      );
       if (response.data.result) {
-        setIsBookInShelf(true);
+        setIsBookInShelf(response.data.result);
+        setAddedToLibraryShelves(response.data.data);
+      } else {
+        setIsBookInShelf(response.data.result);
+        setAddedToLibraryShelves([]);
       }
     } catch (error) {
+      setIsBookInShelf(false);
+      setAddedToLibraryShelves([]);
       console.error("Error adding book to wishlist:", error);
-    }
-  };
-
-  const removeBookFromShelf = async () => {
-    try {
-      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
-        params: {
-          user_id: userData.id,
-          shelf_id: 1,
-          book_id: id,
-        },
-      });
-      if (response.data.result) {
-        alert("Book has been removed from library.");
-      }
-    } catch (error) {
-      console.error("Error removing book from shelf:", error);
     }
   };
 
@@ -166,11 +159,8 @@ const BookDetails = () => {
   if (!book) return <Typography>Loading...</Typography>;
 
   const handleAddToLibrary = () => {
-    setIsShelfModelOpen(true);
-  };
-
-  const handleRemoveFromLibrary = () => {
-    removeBookFromShelf();
+    if (isBookInShelf) setIsRemoveModelOpen(true);
+    else setIsShelfModelOpen(true);
   };
 
   const handleReadBook = () => {
@@ -310,9 +300,7 @@ const BookDetails = () => {
                   variant="outlined"
                   color="secondary"
                   fullWidth={isMobile}
-                  onClick={
-                    isBookInShelf ? handleRemoveFromLibrary : handleAddToLibrary
-                  }
+                  onClick={handleAddToLibrary}
                 >
                   {isBookInShelf ? "Remove from Libary" : " Add to Library"}
                 </Button>
@@ -373,7 +361,6 @@ const BookDetails = () => {
           </CardContent>
         </Grid2>
       </Grid2>
-
       {/* Review Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Write a Review</DialogTitle>
@@ -403,7 +390,6 @@ const BookDetails = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Tabs
         value={value}
         onChange={handleChange}
@@ -414,7 +400,6 @@ const BookDetails = () => {
         <Tab label="Table of Contents" />
         <Tab label="Reviews" />
       </Tabs>
-
       {/* Table of Contents Section */}
       <Box hidden={value !== 0}>
         <List style={{ maxHeight: screenWidth * 0.4, overflow: "auto" }}>
@@ -431,7 +416,6 @@ const BookDetails = () => {
             ))}
         </List>
       </Box>
-
       {/* Reviews Section */}
       <Box
         hidden={value !== 1}
@@ -488,12 +472,23 @@ const BookDetails = () => {
         )}
       </Box>
 
+      <RemoveShelfModal
+        id={id}
+        isOpen={isRemoveModelOpen}
+        onClose={() => {
+          setIsRemoveModelOpen(false);
+        }}
+        data={addedToLibraryShelves}
+        fetchAddedToLibrary={fetchAddedToLibrary}
+      />
+
       <ShelfModal
         id={id}
         isOpen={isShelfModelOpen}
         onClose={() => {
           setIsShelfModelOpen(false);
         }}
+        fetchAddedToLibrary={fetchAddedToLibrary}
       />
     </Container>
   );
