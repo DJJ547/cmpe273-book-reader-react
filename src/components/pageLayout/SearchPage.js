@@ -58,7 +58,6 @@ const SearchPage = () => {
   return (
     <Container
       style={{
-        padding: screenWidth <= 768 ? "15%" : "4%",
         backgroundColor: "#f7f7f7",
         borderRadius: "8px",
       }}

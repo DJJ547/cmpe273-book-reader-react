@@ -121,7 +121,7 @@ const MainPage = () => {
 
   return (
     <div>
-      <div style={{ padding: screenWidth <= 768 ? "6%" : "2%" }}></div>
+      <div></div>
       <Typography variant={screenWidth <= 768 ? "h5" : "h4"} gutterBottom>
         Featured Books
       </Typography>

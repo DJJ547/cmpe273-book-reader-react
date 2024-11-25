@@ -22,7 +22,6 @@ import {
   DialogTitle,
   TextField,
   Rating,
-  IconButton,
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, StarBorder, StarHalf } from "@mui/icons-material";
@@ -30,6 +29,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+import { ShelfModal } from "./AddToShelfModel";
 // Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
   if (reviews && reviews.length > 0) {
@@ -63,7 +63,8 @@ const BookDetails = () => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   const [isInWishlist, setIsInWishlist] = useState(false); // Track if the book is in the wishlist
-
+  const [isShelfModelOpen, setIsShelfModelOpen] = useState(false);
+  const [isBookInShelf, setIsBookInShelf] = useState(false);
   // Function to handle adding/removing from wishlist
   const handleAddToWishlist = () => {
     if (isInWishlist) {
@@ -86,66 +87,43 @@ const BookDetails = () => {
     }
   };
 
-  const fetchShelves = async () => {
+  const fetchAddedToLibrary = async () => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/library/get_library_data/`,
-        {
-          params: { user_id: savedUser.id },
-        }
-      );
+      const response = await axios.post(`/library//`, {
+        user_id: userData.id,
+        book_id: id,
+      });
+      if (response.data.result) {
+        setIsBookInShelf(true);
+      }
     } catch (error) {
-      console.error("Error fetching shelves data:", error);
+      console.error("Error adding book to wishlist:", error);
     }
   };
 
-  // const addBookToShelf = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       `http://127.0.0.1:8000/library/add_book_to_shelf/`,
-  //       {
-  //         user_id: userData.id,
-  //         shelf_id: ,
-  //         book_id: book.id,
-  //       }
-  //     );
-  //     if (response.data.result) {
-  //       //do something
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding book to shelf:", error);
-  //   }
-  // }
-
-  // const removeBookFromShelf = async () => {
-  //   try {
-  //     const response = await axios.delete(
-  //       `http://127.0.0.1:8000/library/remove_book_from_shelf/`,
-  //       {
-  //         params: {
-  //           user_id: userData.id,
-  //           shelf_id: ,
-  //           book_id: book.id,
-  //         },
-  //       }
-  //     );
-  //     if (response.data.result) {
-  //       //do something
-  //     }
-  //   } catch (error) {
-  //     console.error("Error removing book from shelf:", error);
-  //   }
-  // }
+  const removeBookFromShelf = async () => {
+    try {
+      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
+        params: {
+          user_id: userData.id,
+          shelf_id: 1,
+          book_id: id,
+        },
+      });
+      if (response.data.result) {
+        alert("Book has been removed from library.");
+      }
+    } catch (error) {
+      console.error("Error removing book from shelf:", error);
+    }
+  };
 
   const addBookToWishlist = async () => {
     try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/library/add_book_to_wishlist/`,
-        {
-          user_id: userData.id,
-          book_id: book.id,
-        }
-      );
+      const response = await axios.post(`/library/add_book_to_wishlist/`, {
+        user_id: userData.id,
+        book_id: book.id,
+      });
       if (response.data.result) {
         setIsInWishlist(true);
       }
@@ -157,7 +135,7 @@ const BookDetails = () => {
   const removeBookFromWishlist = async () => {
     try {
       const response = await axios.delete(
-        `http://127.0.0.1:8000/library/remove_book_from_wishlist/`,
+        `/library/remove_book_from_wishlist/`,
         {
           params: {
             user_id: userData.id,
@@ -166,7 +144,7 @@ const BookDetails = () => {
         }
       );
       if (response.data.result) {
-        setIsInWishlist(false);
+        fetchAddedToLibrary();
       }
     } catch (error) {
       console.error("Error removing book from wishlist:", error);
@@ -181,14 +159,18 @@ const BookDetails = () => {
     window.addEventListener("resize", handleResize);
 
     fetchBook();
-
+    fetchAddedToLibrary();
     return () => window.removeEventListener("resize", handleResize);
   }, [id]);
 
   if (!book) return <Typography>Loading...</Typography>;
 
   const handleAddToLibrary = () => {
-    alert(`${book.book_name} has been added to your library!`);
+    setIsShelfModelOpen(true);
+  };
+
+  const handleRemoveFromLibrary = () => {
+    removeBookFromShelf();
   };
 
   const handleReadBook = () => {
@@ -227,7 +209,7 @@ const BookDetails = () => {
   return (
     <Container
       maxWidth="lg"
-      style={{ padding: "5%", backgroundColor: "#f9f9f9", borderRadius: "8px" }}
+      style={{ backgroundColor: "#f9f9f9", borderRadius: "8px" }}
     >
       <Button
         onClick={handleBack}
@@ -328,9 +310,11 @@ const BookDetails = () => {
                   variant="outlined"
                   color="secondary"
                   fullWidth={isMobile}
-                  onClick={handleAddToLibrary}
+                  onClick={
+                    isBookInShelf ? handleRemoveFromLibrary : handleAddToLibrary
+                  }
                 >
-                  Add to Library
+                  {isBookInShelf ? "Remove from Libary" : " Add to Library"}
                 </Button>
               </Grid2>
               <Grid2 item xs={12} sm="auto">
@@ -503,6 +487,14 @@ const BookDetails = () => {
           </Typography>
         )}
       </Box>
+
+      <ShelfModal
+        id={id}
+        isOpen={isShelfModelOpen}
+        onClose={() => {
+          setIsShelfModelOpen(false);
+        }}
+      />
     </Container>
   );
 };
