@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Accordion,
   Card,
@@ -55,6 +55,7 @@ const shelvesMoreOptions = [
 ];
 
 const Library = () => {
+  const { user_id } = useParams();
   const navigate = useNavigate();
   const itemsPerPage = 9;
   //===================================================States======================================================

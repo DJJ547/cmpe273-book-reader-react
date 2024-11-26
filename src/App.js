@@ -9,7 +9,7 @@ import BookDetails from "./components/pageLayout/BookDetails";
 //utilities
 
 //components
-
+import PrivateRoute from "./components/pageLayout/PrivateRoute";
 //pages
 import Test from "./pages/Test";
 import ReadingPage from "./pages/ReadingPage";
@@ -32,7 +32,14 @@ export default function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/book/:id" element={<BookDetails />} />
-        <Route path="/library" element={<Library/>} />
+        <Route
+          path="/library/:user_id"
+          element={
+            <PrivateRoute>
+              <Library />
+            </PrivateRoute>
+          }
+        />
         <Route path="/readingpage/:id" element={<Reader />} />
         {/* <Route path="/auth/login" element={<Login />} /> */}
         {/* <Route path="/auth/signup" element={<Signup />} /> */}

@@ -4,7 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the CSS file
 import "semantic-ui-css/semantic.min.css";
 
+import { useAuth } from "../../components/context/AuthContext";
+
 const Navbar = () => {
+  const { isAuthenticated, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false); // Toggle for search input
   const [fontSize, setFontSize] = useState("20px"); // State for font size
@@ -91,9 +94,11 @@ const Navbar = () => {
         <Menu.Item as={Link} to="/">
           Home
         </Menu.Item>
-        <Menu.Item as={Link} to="/library">
-          Library
-        </Menu.Item>
+        {isAuthenticated && (
+          <Menu.Item as={Link} to={`/library/${user.id}`}>
+            Library
+          </Menu.Item>
+        )}
       </Menu.Menu>
       <div
         className={`search-container ${isSearchActive ? "active" : ""}`}
