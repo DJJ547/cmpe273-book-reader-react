@@ -16,7 +16,7 @@ import ReadingPage from "./pages/ReadingPage";
 import Reader from "./pages/Reader";
 // import Main from "./pages/Main";
 import Login from "./pages/auth/Login";
-// import Signup from "./pages/auth/Signup";
+import Signup from "./pages/auth/Signup";
 import Library from "./pages/Library";
 import TestGetBookContent from "./components/test/TestGetBookContent";
 // ... other imports
@@ -41,9 +41,11 @@ export default function App() {
           }
         />
         <Route path="/readingpage/:id" element={<Reader />} />
-        {/* <Route path="/auth/login" element={<Login />} /> */}
-        {/* <Route path="/auth/signup" element={<Signup />} /> */}
+        <Route path="/auth/login" element={<Login/>} />
+        <Route path="/auth/signup" element={<Signup/>}/>
       </Routes>
     </div>
+
+    
   );
 }
