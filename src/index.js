@@ -5,17 +5,18 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App";
-import { GoogleOAuthProvider } from "@react-oauth/google"; // If using Google OAuth
-import "semantic-ui-css/semantic.min.css"; // Import Semantic UI CSS
+import { AuthProvider } from "./components/context/AuthContext";
 
-const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID_JAI;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
       <GoogleOAuthProvider clientId={CLIENT_ID}>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </GoogleOAuthProvider>
     </Router>
   </React.StrictMode>

@@ -1,5 +1,6 @@
 // src/pages/auth/Login.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google"; // Google Login component
 import { jwtDecode } from "jwt-decode"; // To decode the JWT token
 import {
@@ -9,10 +10,16 @@ import {
   Segment,
   Divider,
   Header,
+  Message,
 } from "semantic-ui-react";
-import './Login.css';
+import "./Login.css";
+import axios from "axios";
+import { useAuth } from "../../components/context/AuthContext";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, login } = useAuth();
+  const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,18 +36,62 @@ const Login = () => {
   };
 
   // Function to handle regular login
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+  const handleLogin = () => {
+    // e.preventDefault();
     // Implement your login logic, e.g., authenticate against your backend
+    builtInLogin();
   };
 
-  console.log("debug Email:");
-  
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/"); // Redirect to home if already logged in
+    }
+  }, [isAuthenticated, navigate]);
+
+  //===================================== API requests ==========================================
+  const builtInLogin = async () => {
+    try {
+      const response = await axios.post(`/auth/login/`, {
+        email: email,
+        password: password,
+      });
+      if (response.status === 200) {
+        const userData = response.data.data;
+        const user = {
+          id: userData.id,
+          email: userData.email,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+        };
+        login(user);
+        navigate("/");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <div className="login-container">
-         <div className="overlay"></div> {/* Transparent overlay */}
+      {error && (
+        <Message
+          negative
+          onDismiss={() => setError("")}
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: "1000", // Optional: ensures it appears on top of other elements
+            width: "80%", // Adjust as needed for your layout
+            maxWidth: "600px", // Optional: constrain the width
+          }}
+        >
+          <Message.Header>Error</Message.Header>
+          <p>{error}</p>
+        </Message>
+      )}
+      <div className="overlay"></div> {/* Transparent overlay */}
       <Grid centered>
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header
@@ -80,11 +131,6 @@ const Login = () => {
                 Login to Your Account
               </Button>
             </Form>
-
-            <Divider horizontal className="divider">
-              /
-            </Divider>
-
             {/* Google Login Button */}
             <GoogleLogin
               onSuccess={handleGoogleLoginSuccess}
@@ -92,6 +138,19 @@ const Login = () => {
             >
               <Button primary>Log in with Google</Button>
             </GoogleLogin>
+
+            <Divider horizontal className="divider">
+              /
+            </Divider>
+
+            <Button
+              fluid
+              className="signup-button"
+              style={{ marginBottom: "10px" }}
+              onClick={() => navigate("/auth/signup")}
+            >
+              Signup for an Account
+            </Button>
           </Segment>
         </Grid.Column>
       </Grid>

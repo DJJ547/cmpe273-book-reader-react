@@ -1,6 +1,6 @@
 // src/pages/auth/Signup.js
 import React, { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google"; // Google Signup component
+import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode"; // To decode the JWT token
 import {
   Button,
@@ -9,39 +9,71 @@ import {
   Segment,
   Divider,
   Header,
+  Message,
 } from "semantic-ui-react";
-import './Signup.css';
+import "./Signup.css";
+import axios from "axios";
 
 const Signup = () => {
+  const [error, setError] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Function to handle Google registration success
-  const handleGoogleSignupSuccess = (response) => {
-    const userObject = jwtDecode(response.credential);
-    console.log("Signuped user:", userObject);
-    // Implement your registration logic, e.g., store user information, redirect, etc.
-  };
+  // // Function to handle Google registration success
+  // const handleGoogleSignupSuccess = (response) => {
+  //   const userObject = jwtDecode(response.credential);
+  //   console.log("Signuped user:", userObject);
+  //   // Implement your registration logic, e.g., store user information, redirect, etc.
+  // };
 
-  // Function to handle Google registration failure
-  const handleGoogleSignupFailure = (error) => {
-    console.log("Google registration failed:", error);
-  };
+  // // Function to handle Google registration failure
+  // const handleGoogleSignupFailure = (error) => {
+  //   console.log("Google registration failed:", error);
+  // };
 
   // Function to handle regular registration
   const handleSignup = (e) => {
-    e.preventDefault();
-    console.log("First Name:", firstName);
-    console.log("Last Name:", lastName);
-    console.log("Email:", email);
-    console.log("Password:", password);
+    // e.preventDefault();
     // Implement your registration logic, e.g., create account in your backend
+    builtInSignup();
+  };
+
+  // ======================API request====================================
+  const builtInSignup = async () => {
+    try {
+      const response = await axios.post(`/auth/signup/`, {
+        email: email,
+        password: password,
+        first_name: firstName,
+        last_name: lastName,
+      });
+    } catch (error) {
+      setError("There was a problem adding your new shelf.");
+    }
   };
 
   return (
     <div className="signup-container">
+      {error && (
+        <Message
+          negative
+          onDismiss={() => setError("")}
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: "1000", // Optional: ensures it appears on top of other elements
+            width: "80%", // Adjust as needed for your layout
+            maxWidth: "600px", // Optional: constrain the width
+          }}
+        >
+          <Message.Header>Error</Message.Header>
+          <p>{error}</p>
+        </Message>
+      )}
       <div className="overlay"></div> {/* Transparent overlay */}
       <Grid centered>
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -105,13 +137,22 @@ const Signup = () => {
               /
             </Divider>
 
-            {/* Google Signup Button */}
-            <GoogleLogin
-              onSuccess={handleGoogleSignupSuccess}
-              onError={handleGoogleSignupFailure}
+            <div
+              style={{
+                fontSize: "15px",
+                textAlign: "center",
+                marginTop: "20px",
+              }}
             >
-              <Button primary>Signup with Google</Button>
-            </GoogleLogin>
+              <span>Already have an account?</span>
+              <Link
+                to="/auth/login"
+                style={{ color: "#007bff", textDecoration: "none" }}
+              >
+                {" "}
+                Login
+              </Link>
+            </div>
           </Segment>
         </Grid.Column>
       </Grid>

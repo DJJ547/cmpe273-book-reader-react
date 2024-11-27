@@ -11,20 +11,15 @@ import { iconOptions, colorOptions } from "../../utils/utils";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-const userData = {
-  id: 1,
-};
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify(userData));
-}
-const savedUser = JSON.parse(localStorage.getItem("user"));
+import { useAuth } from "../context/AuthContext";
 
 export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
+  const { user } = useAuth();
   const fetchShelves = async () => {
     try {
       await axios
         .get(`/library/get_library_data/`, {
-          params: { user_id: savedUser.id },
+          params: { user_id: user.id },
         })
         .then((SUCCESS) => {
           console.log("SUCCESS", SUCCESS.data.data);
@@ -50,7 +45,7 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
       if (newShelfName) {
         const addShelfresponse = await axios
           .post(`/library/add_shelf/`, {
-            user_id: savedUser.id,
+            user_id: user.id,
             shelf: {
               name: newShelfName,
               icon: selectedIcon,
@@ -72,7 +67,7 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
       }
 
       const response = await axios.post(`/library/add_book_to_shelf/`, {
-        user_id: savedUser.id,
+        user_id: user.id,
         shelf_id: shelfToAdd.id,
         book_id: id,
       });

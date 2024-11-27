@@ -1,29 +1,50 @@
-import React, { createContext, useContext, useState } from "react";
-import { googleLogout } from "@react-oauth/google";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Create AuthContext
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+export const useAuth = () => useContext(AuthContext);
 
-  const login = (userInfo) => {
-    setIsAuthenticated(true);
-    setUser(userInfo);
+export const AuthProvider = ({ children }) => {
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    user: null,
+  });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setAuthState({
+        isAuthenticated: true,
+        user: JSON.parse(storedUser),
+      });
+    }
+  }, []);
+
+  const login = (userData) => {
+    setAuthState({
+      isAuthenticated: true,
+      user: userData,
+    });
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    googleLogout(); // Logs out from Google
+    setAuthState({
+      isAuthenticated: false,
+      user: null,
+    });
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        ...authState,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

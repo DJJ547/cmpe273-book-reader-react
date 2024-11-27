@@ -32,6 +32,8 @@ import axios from "axios";
 import { ShelfModal } from "./AddToShelfModel";
 
 import { RemoveShelfModal } from "./RemoveShelfModal";
+import { useAuth } from "../context/AuthContext";
+
 // Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
   if (reviews && reviews.length > 0) {
@@ -41,15 +43,8 @@ export const calculateMeanRating = (reviews) => {
   return 0;
 };
 
-const userData = {
-  id: 1,
-};
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify(userData));
-}
-const savedUser = JSON.parse(localStorage.getItem("user"));
-
 const BookDetails = () => {
+  const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -95,7 +90,7 @@ const BookDetails = () => {
   const fetchAddedToLibrary = async () => {
     try {
       const response = await axios.get(
-        `/library/get_shelves_with_current_book/?user_id=${userData.id}&book_id=${id}`
+        `/library/get_shelves_with_current_book/?user_id=${user.id}&book_id=${id}`
       );
       if (response.data.result) {
         setIsBookInShelf(response.data.result);
@@ -114,7 +109,7 @@ const BookDetails = () => {
   const addBookToWishlist = async () => {
     try {
       const response = await axios.post(`/library/add_book_to_wishlist/`, {
-        user_id: userData.id,
+        user_id: user.id,
         book_id: book.id,
       });
       if (response.data.result) {
@@ -131,7 +126,7 @@ const BookDetails = () => {
         `/library/remove_book_from_wishlist/`,
         {
           params: {
-            user_id: userData.id,
+            user_id: user.id,
             book_id: book.id,
           },
         }

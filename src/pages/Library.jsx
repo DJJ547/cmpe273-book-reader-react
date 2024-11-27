@@ -24,14 +24,6 @@ import "semantic-ui-css/semantic.min.css";
 
 const api_url = process.env.REACT_APP_BACKEND_LOCALHOST;
 
-const userData = {
-  id: 1,
-};
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify(userData));
-}
-const savedUser = JSON.parse(localStorage.getItem("user"));
-
 const filterOptions = [
   { key: "recent", text: "Recent", value: "recent" },
   { key: "name", text: "Name", value: "name" },
@@ -311,8 +303,8 @@ const Library = () => {
   const fetchLibraryData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${api_url}library/get_library_data/`, {
-        params: { user_id: savedUser.id },
+      const response = await axios.get(`/library/get_library_data/`, {
+        params: { user_id: user_id },
       });
       console.log("fetched library data: ", response.data.data);
       //sync shelves data
@@ -347,7 +339,7 @@ const Library = () => {
   const addShelf = async () => {
     try {
       const response = await axios.post(`${api_url}library/add_shelf/`, {
-        user_id: savedUser.id,
+        user_id: user_id,
         shelf: {
           name: shelfName,
           icon: shelfIcon,
@@ -375,8 +367,8 @@ const Library = () => {
   const editShelf = async (shelfData) => {
     try {
       console.log(shelfData);
-      const response = await axios.put(`${api_url}library/edit_shelf/`, {
-        user_id: savedUser.id,
+      const response = await axios.put(`/library/edit_shelf/`, {
+        user_id: user_id,
         shelf: shelfData,
       });
       console.log(response.data);
@@ -398,9 +390,9 @@ const Library = () => {
 
   const removeShelf = async (shelf_id) => {
     try {
-      const response = await axios.delete(`${api_url}library/remove_shelf/`, {
+      const response = await axios.delete(`/library/remove_shelf/`, {
         params: {
-          user_id: savedUser.id,
+          user_id: user_id,
           shelf_id: shelf_id,
         },
       });
@@ -421,9 +413,9 @@ const Library = () => {
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
       const response = await axios.post(
-        `${api_url}library/add_book_to_shelf/`,
+        `/library/add_book_to_shelf/`,
         {
-          user_id: savedUser.id,
+          user_id: user_id,
           shelf_id: shelf_id,
           book_id: book_id,
         }
@@ -459,14 +451,14 @@ const Library = () => {
 
   const removeBookFromShelf = async (shelf_id, book_id) => {
     console.log(
-      `user_id: ${savedUser.id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
+      `user_id: ${user_id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
     );
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_shelf/`,
+        `/library/remove_book_from_shelf/`,
         {
           params: {
-            user_id: savedUser.id,
+            user_id: user_id,
             shelf_id: shelf_id,
             book_id: book_id,
           },
@@ -505,10 +497,10 @@ const Library = () => {
   const removeBookFromWishlist = async (book_id) => {
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_wishlist/`,
+        `/library/remove_book_from_wishlist/`,
         {
           params: {
-            user_id: savedUser.id,
+            user_id: user_id,
             book_id: book_id,
           },
         }
@@ -535,10 +527,10 @@ const Library = () => {
   const removeBookFromHistory = async (book_id) => {
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_history/`,
+        `/library/remove_book_from_history/`,
         {
           params: {
-            user_id: savedUser.id,
+            user_id: user_id,
             book_id: book_id,
           },
         }
@@ -579,7 +571,7 @@ const Library = () => {
   return (
     <div
       className="wishlist-container"
-      style={{ flexGrow: 1, padding: "30px" }}
+      style={{ flexGrow: 1, padding: "10px" }}
     >
       <div style={{ display: "flex", padding: "20px", alignItems: "center" }}>
         {error && (
@@ -601,7 +593,7 @@ const Library = () => {
           </Message>
         )}
         <Header style={{fontSize: "30px"}}>My Library</Header>
-        <a style={{ marginLeft: "20px", fontSize: "16px" }}>
+        <a href="/" style={{ marginLeft: "20px", fontSize: "16px" }}>
           <Icon name="clone outline" /> More Books
         </a>
       </div>

@@ -12,7 +12,7 @@
  /* Overlay to simulate the transparency effect */
 .login-container .overlay {
     position: absolute;
-    top: 0;
+    top: 10;
     left: 0;
     width: 100%;
     height: 100%;
@@ -39,6 +39,22 @@
   .login-button {
     background-color: #007bff;
     color: white;
+  }
+
+  .signup-button {
+    background-color: white;  /* White background */
+    color: black;  /* Black text */
+    border: 1px solid #007bff;  /* Blue border to match the main color */
+    border-radius: 5px;  /* Rounded corners */
+    padding: 10px 20px;  /* Padding for a more spacious button */
+    cursor: pointer;  /* Pointer cursor on hover */
+    transition: background-color 0.3s, border-color 0.3s;  /* Smooth transitions */
+}
+
+  .signup-button:hover {
+      background-color: #f8f9fa;  /* Light gray background on hover */
+      border-color: #0056b3;  /* Darker blue border on hover */
+      color: #0056b3;  /* Change text color to blue on hover */
   }
   
   .divider {

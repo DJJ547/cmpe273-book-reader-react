@@ -94,7 +94,7 @@ const Navbar = () => {
         <Menu.Item as={Link} to="/">
           Home
         </Menu.Item>
-        {isAuthenticated && (
+        {isAuthenticated && user && Object.keys(user).length > 0 && (
           <Menu.Item as={Link} to={`/library/${user.id}`}>
             Library
           </Menu.Item>
