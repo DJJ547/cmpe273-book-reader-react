@@ -34,7 +34,7 @@ export default function TableofContents({current_chapter, book }) {
   //API call: get the table of contents
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_LOCALHOST}reading/book/${book}/table_of_contents`)
+      .get(`/reading/book/${book}/table_of_contents`)
       .then((response) => {
         setTOC(response.data);
       })

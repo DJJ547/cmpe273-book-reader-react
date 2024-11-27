@@ -310,7 +310,7 @@ const Library = () => {
   const fetchLibraryData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${api_url}library/get_library_data/`, {
+      const response = await axios.get(`/library/get_library_data/`, {
         params: { user_id: savedUser.id },
       });
       console.log("fetched library data: ", response.data.data);
@@ -345,7 +345,7 @@ const Library = () => {
 
   const addShelf = async () => {
     try {
-      const response = await axios.post(`${api_url}library/add_shelf/`, {
+      const response = await axios.post(`/library/add_shelf/`, {
         user_id: savedUser.id,
         shelf: {
           name: shelfName,
@@ -374,7 +374,7 @@ const Library = () => {
   const editShelf = async (shelfData) => {
     try {
       console.log(shelfData);
-      const response = await axios.put(`${api_url}library/edit_shelf/`, {
+      const response = await axios.put(`/library/edit_shelf/`, {
         user_id: savedUser.id,
         shelf: shelfData,
       });
@@ -397,7 +397,7 @@ const Library = () => {
 
   const removeShelf = async (shelf_id) => {
     try {
-      const response = await axios.delete(`${api_url}library/remove_shelf/`, {
+      const response = await axios.delete(`/library/remove_shelf/`, {
         params: {
           user_id: savedUser.id,
           shelf_id: shelf_id,
@@ -420,7 +420,7 @@ const Library = () => {
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
       const response = await axios.post(
-        `${api_url}library/add_book_to_shelf/`,
+        `/library/add_book_to_shelf/`,
         {
           user_id: savedUser.id,
           shelf_id: shelf_id,
@@ -462,7 +462,7 @@ const Library = () => {
     );
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_shelf/`,
+        `/library/remove_book_from_shelf/`,
         {
           params: {
             user_id: savedUser.id,
@@ -504,7 +504,7 @@ const Library = () => {
   const removeBookFromWishlist = async (book_id) => {
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_wishlist/`,
+        `/library/remove_book_from_wishlist/`,
         {
           params: {
             user_id: savedUser.id,
@@ -534,7 +534,7 @@ const Library = () => {
   const removeBookFromHistory = async (book_id) => {
     try {
       const response = await axios.delete(
-        `${api_url}library/remove_book_from_history/`,
+        `/library/remove_book_from_history/`,
         {
           params: {
             user_id: savedUser.id,

@@ -51,6 +51,10 @@ export default function AudioTTS() {
   const handleProgress = (state) => {
     const currentTime = state.playedSeconds * 1000;
     if (!paragraphTimings) return;
+    if (!isPlaying){
+      call_back_get_highlighted_paragraph(null);
+      return;
+    }
     for (let i = 0; i < paragraphTimings.length; i++) {
       if (currentTime >= paragraphTimings[i].start && currentTime <= paragraphTimings[i].end) {
         call_back_get_highlighted_paragraph(i);
