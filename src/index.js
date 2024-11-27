@@ -1,14 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
-import App from "./App";
-
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import App from './App';
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Router>
-    <App />
-  </Router>
+  <React.StrictMode>
+    <GoogleOAuthProvider clientId={CLIENT_ID}>
+      <Router>
+        <App />
+      </Router>
+    </GoogleOAuthProvider>
+  </React.StrictMode>
 );

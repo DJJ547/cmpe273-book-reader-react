@@ -13,55 +13,158 @@ import {
   ListItem,
   ListItemText,
   Avatar,
+  Grid2,
+  useMediaQuery,
+  useTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Rating,
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, StarBorder, StarHalf } from "@mui/icons-material";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Link } from "react-router-dom";
+import axios from "axios";
+
+import { ShelfModal } from "./AddToShelfModel";
+
+import { RemoveShelfModal } from "./RemoveShelfModal";
+// Function to calculate the mean rating
 export const calculateMeanRating = (reviews) => {
   if (reviews && reviews.length > 0) {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (totalRating / reviews.length).toFixed(1); // Return the average, rounded to 1 decimal place
+    return (totalRating / reviews.length).toFixed(1);
   }
-  return 0; // Return 0 if no reviews are present
+  return 0;
 };
+
+const userData = {
+  id: 1,
+};
+if (!localStorage.getItem("user")) {
+  localStorage.setItem("user", JSON.stringify(userData));
+}
+const savedUser = JSON.parse(localStorage.getItem("user"));
+
 const BookDetails = () => {
+  const [rating, setRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
   const { id } = useParams();
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("query");
   const [book, setBook] = useState(null);
   const [value, setValue] = useState(0);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const [isInWishlist, setIsInWishlist] = useState(false); // Track if the book is in the wishlist
+  const [isShelfModelOpen, setIsShelfModelOpen] = useState(false);
+  const [isRemoveModelOpen, setIsRemoveModelOpen] = useState(false);
+
+  const [isBookInShelf, setIsBookInShelf] = useState(false);
+  const [addedToLibraryShelves, setAddedToLibraryShelves] = useState([]);
+  // Function to handle adding/removing from wishlist
+  const handleAddToWishlist = () => {
+    if (isInWishlist) {
+      removeBookFromWishlist();
+    } else {
+      addBookToWishlist();
+    }
+  };
+  const fetchBook = async () => {
+    try {
+      const response = await fetch(`/main/books/with-genres/${id}/`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setBook(data);
+      setReviews(data.reviews || []);
+    } catch (error) {
+      console.error("Error fetching book data:", error);
+    }
+  };
+
+  const fetchAddedToLibrary = async () => {
+    try {
+      const response = await axios.get(
+        `/library/get_shelves_with_current_book/?user_id=${userData.id}&book_id=${id}`
+      );
+      if (response.data.result) {
+        setIsBookInShelf(response.data.result);
+        setAddedToLibraryShelves(response.data.data);
+      } else {
+        setIsBookInShelf(response.data.result);
+        setAddedToLibraryShelves([]);
+      }
+    } catch (error) {
+      setIsBookInShelf(false);
+      setAddedToLibraryShelves([]);
+      console.error("Error adding book to wishlist:", error);
+    }
+  };
+
+  const addBookToWishlist = async () => {
+    try {
+      const response = await axios.post(`/library/add_book_to_wishlist/`, {
+        user_id: userData.id,
+        book_id: book.id,
+      });
+      if (response.data.result) {
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      console.error("Error adding book to wishlist:", error);
+    }
+  };
+
+  const removeBookFromWishlist = async () => {
+    try {
+      const response = await axios.delete(
+        `/library/remove_book_from_wishlist/`,
+        {
+          params: {
+            user_id: userData.id,
+            book_id: book.id,
+          },
+        }
+      );
+      if (response.data.result) {
+        fetchAddedToLibrary();
+      }
+    } catch (error) {
+      console.error("Error removing book from wishlist:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchBook = async () => {
-      try {
-        const response = await fetch(`/main/books/with-genres/${id}/`);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setBook(data);
-      } catch (error) {
-        console.error("Error fetching book data:", error);
-      }
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
     };
 
+    window.addEventListener("resize", handleResize);
+
     fetchBook();
+    fetchAddedToLibrary();
+    return () => window.removeEventListener("resize", handleResize);
   }, [id]);
 
   if (!book) return <Typography>Loading...</Typography>;
 
   const handleAddToLibrary = () => {
-    alert(`${book.book_name} has been added to your library!`);
+    if (isBookInShelf) setIsRemoveModelOpen(true);
+    else setIsShelfModelOpen(true);
   };
 
   const handleReadBook = () => {
-    navigate(`/book/read/${id}`);
+    navigate(`/readingpage/${id}`);
   };
 
   const handleChange = (event, newValue) => {
@@ -73,89 +176,75 @@ const BookDetails = () => {
     else navigate(`/search?query=${query}`);
   };
 
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating); // Number of full stars
-    const halfStars = rating % 1 !== 0; // Is there a half star?
-    const emptyStars = 5 - fullStars - (halfStars ? 1 : 0); // Empty stars to make up 5 stars
-
-    return (
-      <>
-        {[...Array(fullStars)].map((_, index) => (
-          <Star key={`full-${index}`} style={{ color: "#ff9800" }} />
-        ))}
-        {halfStars && <StarHalf style={{ color: "#ff9800" }} />}{" "}
-        {/* Use StarHalf for the half star */}
-        {[...Array(emptyStars)].map((_, index) => (
-          <StarBorder key={`empty-${index}`} style={{ color: "#ff9800" }} />
-        ))}
-      </>
-    );
+  const handleWriteReview = () => {
+    const newReview = {
+      book_id: id,
+      user_id: 1,
+      review: reviewComment,
+      rating: rating,
+    };
+    axios
+      .post("/main/reviews/", newReview)
+      .then((SUCCESS) => {})
+      .catch((e) => {
+        console.log("post review failed e", e);
+      });
+    // Add the new review to the list (you can replace this with an API call)
+    fetchBook();
+    setOpenModal(false);
+    setRating(0); // Reset rating
+    setReviewComment(""); // Clear comment
   };
 
   return (
     <Container
-      style={{
-        padding: "20px",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "8px",
-        width: "85%",
-        maxWidth: "1200px",
-        margin: "auto",
-      }}
+      maxWidth="lg"
+      style={{ backgroundColor: "#f9f9f9", borderRadius: "8px" }}
     >
       <Button
         onClick={handleBack}
         variant="outlined"
         color="primary"
-        style={{ margin: "20px 0" }}
+        style={{ marginBottom: "20px" }}
       >
         Back
       </Button>
-
-      <Card
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          marginTop: "20px",
-          backgroundColor: "#ffffff",
-          borderRadius: "10px",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-          width: "100%",
-        }}
-      >
-        {book.book_cover && (
-          <CardMedia
-            component="img"
-            height="400"
-            image={book.book_cover}
-            alt={book.book_name}
-            style={{
-              width: "auto",
-              flexShrink: 0,
-              borderRadius: "10px 0 0 10px",
-              aspectRatio: "3 / 4",
-              objectFit: "cover",
-              maxWidth: "250px",
-            }}
-          />
-        )}
-        <CardContent
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            padding: "20px",
-            flexGrow: 1,
-          }}
+      <Grid2 container spacing={2} alignItems="center">
+        {/* Image Section */}
+        <Grid2
+          item
+          xs={12}
+          md={6}
+          style={{ display: "flex", justifyContent: "center" }}
         >
-          <div>
+          {book.book_cover && (
+            <CardMedia
+              component="img"
+              image={book.book_cover}
+              alt={book.book_name}
+              style={{
+                width: "50%", // Image takes 50% width on larger screens
+                height: "auto", // height adjusts based on width
+                objectFit: "cover", // ensures the image fills without stretching
+              }}
+            />
+          )}
+        </Grid2>
+
+        {/* Description and Buttons Section */}
+        <Grid2 item xs={12} md={6}>
+          <CardContent>
             <Typography
-              variant="h4"
-              style={{ fontWeight: "bold", marginBottom: "10px" }}
+              variant={isMobile ? "h6" : "h4"}
+              style={{ fontWeight: "bold" }}
             >
               {book.book_name}
             </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography
+              variant="subtitle1"
+              color="textSecondary"
+              style={{ marginBottom: "10px" }}
+            >
               {book.author}
             </Typography>
             <Typography variant="body2" style={{ marginBottom: "20px" }}>
@@ -164,42 +253,143 @@ const BookDetails = () => {
             <Typography variant="body2" style={{ fontWeight: "bold" }}>
               Genres: {book.genres.join(", ")}
             </Typography>
+
             <Typography
               variant="body2"
               style={{ fontWeight: "bold", marginTop: "10px" }}
             >
               Overall Rating: {calculateMeanRating(book.reviews)} / 5
             </Typography>
+            {/* Display Average Rating */}
+            <Rating
+              value={Number(calculateMeanRating(book.reviews))}
+              readOnly
+              size="large"
+              style={{ marginBottom: "20px" }}
+            />
 
             <Typography
               variant="body2"
               style={{ fontWeight: "bold", marginTop: "10px" }}
             >
-              {renderStars(calculateMeanRating(book.reviews))}
+              Your Rating: {rating} / 5
             </Typography>
-          </div>
+            {/* Editable Rating */}
+            <Rating
+              value={rating}
+              onChange={(_, newValue) => setRating(newValue)}
+              size="large"
+              style={{ marginBottom: "20px" }}
+            />
 
-          <div>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleReadBook}
-              style={{ marginRight: "10px", borderRadius: "20px" }}
-            >
-              Read
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={handleAddToLibrary}
-              style={{ borderRadius: "20px" }}
-            >
-              Add to Library
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <Grid2 container spacing={2} style={{ marginTop: "20px" }}>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="contained"
+                  color="primary"
+                  fullWidth={isMobile}
+                  onClick={handleReadBook}
+                >
+                  Read
+                </Button>
+              </Grid2>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth={isMobile}
+                  onClick={handleAddToLibrary}
+                >
+                  {isBookInShelf ? "Remove from Libary" : " Add to Library"}
+                </Button>
+              </Grid2>
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  size="large"
+                  variant="contained"
+                  color="success"
+                  fullWidth={isMobile}
+                  onClick={() => setOpenModal(true)} // Open modal on click
+                >
+                  Write a Review
+                </Button>
+              </Grid2>
 
+              <Grid2 item xs={12} sm="auto">
+                <Button
+                  color="info"
+                  onClick={handleAddToWishlist}
+                  size="large"
+                  startIcon={
+                    isInWishlist ? (
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="rLq5qb"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M17 3H7C5.8965 3 5.01075 3.8955 5.01075 5L5 21L12 18L19 21V5C19 3.8955 18.1045 3 17 3ZM10.4228 14.2L6.74775 10.525L8.2325 9.04025L10.4228 11.2305L15.8573 5.796L17.342 7.28075L10.4228 14.2Z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="rLq5qb"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M7 3H17C18.1045 3 19 3.8955 19 5V21L12 18L5 21L5.01075 5C5.01075 3.8955 5.8965 3 7 3ZM12 15.824L17 18V5H7V18L12 15.824ZM13 7V9H15V11H13V13H11V11H9V9H11V7H13Z"
+                        ></path>
+                      </svg>
+                    )
+                  }
+                >
+                  {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                </Button>
+              </Grid2>
+            </Grid2>
+          </CardContent>
+        </Grid2>
+      </Grid2>
+      {/* Review Modal */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle>Write a Review</DialogTitle>
+        <DialogContent>
+          <Rating
+            value={rating}
+            onChange={(_, newValue) => setRating(newValue)}
+            size="large"
+            style={{ marginBottom: "20px" }}
+          />
+          <TextField
+            label="Your Review"
+            multiline
+            rows={4}
+            variant="outlined"
+            fullWidth
+            value={reviewComment}
+            onChange={(e) => setReviewComment(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenModal(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleWriteReview} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Tabs
         value={value}
         onChange={handleChange}
@@ -207,32 +397,18 @@ const BookDetails = () => {
         indicatorColor="primary"
         style={{ marginTop: "20px" }}
       >
-        <Tab label="Overview" />
         <Tab label="Table of Contents" />
         <Tab label="Reviews" />
       </Tabs>
-
-      {/* Overview Section */}
-      <Box hidden={value !== 0}>
-        <Typography
-          variant="h6"
-          style={{ fontWeight: "bold", marginTop: "20px" }}
-        >
-          Story Overview:
-        </Typography>
-        <Typography variant="body2">{book.book_description}</Typography>
-      </Box>
-
       {/* Table of Contents Section */}
-      <Box hidden={value !== 1}>
-        {/* Assuming book.chapters exists; adapt as needed */}
-        <List style={{ maxHeight: window.innerHeight * 0.5, overflow: "auto" }}>
+      <Box hidden={value !== 0}>
+        <List style={{ maxHeight: screenWidth * 0.4, overflow: "auto" }}>
           {book.chapters &&
             book.chapters.map((chapter, index) => (
               <ListItem button key={index}>
                 <Link
-                  to={`/book/read/${id}&chapter=${chapter.chapter_number}`} // Create the URL path
-                  style={{ textDecoration: "none", color: "inherit" }} // Optional styling to remove default link styles
+                  to={`/readingpage/${id}&chapter=${chapter.chapter_number}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <ListItemText primary={`${chapter.chapter_title}`} />
                 </Link>
@@ -240,14 +416,10 @@ const BookDetails = () => {
             ))}
         </List>
       </Box>
-
       {/* Reviews Section */}
       <Box
-        hidden={value !== 2}
-        style={{
-          maxHeight: window.innerHeight * 0.5, // Set a max height for the reviews section
-          overflowY: "auto", // Enable vertical scrolling
-        }}
+        hidden={value !== 1}
+        style={{ maxHeight: screenWidth * 0.4, overflowY: "auto" }}
       >
         <Typography
           variant="h6"
@@ -255,82 +427,69 @@ const BookDetails = () => {
         >
           User Reviews:
         </Typography>
-        {/* Assuming book.reviews exists; adapt as needed */}
-        {book.reviews && book.reviews.length > 0 ? (
-          book.reviews.map((review, index) => (
+        {reviews.length > 0 ? (
+          reviews.map((review, index) => (
             <Card
               key={index}
               style={{
                 marginBottom: "10px",
                 backgroundColor: "#f1f1f1",
                 borderRadius: "8px",
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
               }}
             >
               <CardContent>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {/* Profile picture with default user icon */}
-                  <Avatar
-                    alt={review.username || "Unknown User"}
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      marginRight: "10px",
-                      borderRadius: "50%",
-                      backgroundColor: "#f4f4f4",
-                    }}
-                  >
-                    <AccountCircleIcon
-                      style={{ fontSize: "40px", color: "#ccc" }}
-                    />
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar style={{ backgroundColor: "#3f51b5" }}>
+                    {review.username[0].toUpperCase() || "Anonymous"}
                   </Avatar>
-
-                  {/* Username */}
                   <Typography
                     variant="body2"
-                    style={{ fontWeight: "bold", fontSize: "14px" }}
+                    style={{ fontWeight: "bold", marginRight: "10px" }}
                   >
-                    {review.username || "Unknown User"}
+                    {review.username || "Anonymous"}
                   </Typography>
                 </div>
-
-                {/* Review text */}
-                <Typography variant="body2" style={{ marginBottom: "10px" }}>
+                <Rating
+                  value={review.rating}
+                  readOnly
+                  size="small"
+                  style={{ marginBottom: "10px" }}
+                />
+                <Typography
+                  variant="body2"
+                  style={{ marginTop: "10px", fontSize: "14px" }}
+                >
                   {review.review}
-                </Typography>
-
-                {/* Rating */}
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {[...Array(5)].map((_, i) => {
-                    if (i < Math.floor(review.rating)) {
-                      return <Star key={i} style={{ color: "#FFD700" }} />;
-                    } else if (i < Math.ceil(review.rating)) {
-                      return <StarHalf key={i} style={{ color: "#FFD700" }} />;
-                    } else {
-                      return (
-                        <StarBorder key={i} style={{ color: "#FFD700" }} />
-                      );
-                    }
-                  })}
-                </div>
-
-                {/* Rating number */}
-                <Typography variant="caption" color="textSecondary">
-                  ({review.rating.toFixed(1)}/5)
                 </Typography>
               </CardContent>
             </Card>
           ))
         ) : (
-          <Typography>No reviews available.</Typography>
+          <Typography variant="body2" color="textSecondary">
+            No reviews yet.
+          </Typography>
         )}
       </Box>
+
+      <RemoveShelfModal
+        id={id}
+        isOpen={isRemoveModelOpen}
+        onClose={() => {
+          setIsRemoveModelOpen(false);
+        }}
+        data={addedToLibraryShelves}
+        fetchAddedToLibrary={fetchAddedToLibrary}
+      />
+
+      <ShelfModal
+        id={id}
+        isOpen={isShelfModelOpen}
+        onClose={() => {
+          setIsShelfModelOpen(false);
+        }}
+        fetchAddedToLibrary={fetchAddedToLibrary}
+      />
     </Container>
   );
 };

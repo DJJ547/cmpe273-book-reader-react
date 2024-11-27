@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Menu, Input, Icon } from "semantic-ui-react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the CSS file
+import "semantic-ui-css/semantic.min.css";
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,7 +72,6 @@ const Navbar = () => {
         backgroundColor: "#ADD8E6",
         color: "black",
         fontSize,
-        position: "fixed",
         top: "0",
         left: "0",
         right: "0",
@@ -90,6 +90,9 @@ const Navbar = () => {
       <Menu.Menu position="left">
         <Menu.Item as={Link} to="/">
           Home
+        </Menu.Item>
+        <Menu.Item as={Link} to="/library">
+          Library
         </Menu.Item>
       </Menu.Menu>
       <div
