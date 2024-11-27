@@ -4,7 +4,6 @@ import axios from "axios";
 import { SettingsProvider } from "../components/context/SettingsContext";
 import ReadingPage from "./ReadingPage";
 import "../index.css";
-import { Book } from "@mui/icons-material";
 
 export default function Reader() {
   const { book, chapterNumber } = useParams();
@@ -25,7 +24,6 @@ export default function Reader() {
       });
   }, [book, chapterNumber]);
 
-  console.log(Bookinfo);
   return (
     <SettingsProvider book={Bookinfo}>
       <ReadingPage />
