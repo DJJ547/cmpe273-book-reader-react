@@ -51,11 +51,11 @@ export default function TTS() {
       <div
         className={`${
           drawer ? "" : "hidden"
-        } flex flex-col fixed top-0 left-0 z-40 p-4 bg-white default-size ${
+        } flex flex-col fixed left-0 z-40 p-4 bg-white default-size ${
           window.innerWidth < 768
             ? "animate-fade-in-slide-up-from-bottom"
             : `animate-fade-in-slide-up`
-        } ${ maximize ? "maximize-size" : ""} transition-all duration-300`}
+        } ${ maximize ? "maximize-size" : "top-0"} transition-all duration-300`}
       >
         <div>
           <h5

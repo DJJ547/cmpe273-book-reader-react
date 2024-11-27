@@ -1,20 +1,92 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import image from "../assets/statics/image.png";
 import a from "../assets/statics/a.png";
+import { SettingsContext } from "./context/SettingsContext";
 
-export default function AImage(ListImages) {
+export default function AImage() {
+  const { Bookinfo } = useContext(SettingsContext);
+  const content = Bookinfo.content;
+
   const [AIgeneration, setAIgeneration] = useState({
     images: [],
     description: [],
   });
+  const arrayToImage = (array) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(512, 512);
 
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array[i].length; j++) {
+        const pixelIndex = (i * 512 + j) * 4;
+        imageData.data[pixelIndex] = array[i][j][0]; // Red
+        imageData.data[pixelIndex + 1] = array[i][j][1]; // Green
+        imageData.data[pixelIndex + 2] = array[i][j][2]; // Blue
+        imageData.data[pixelIndex + 3] = 255; // Alpha
+      }
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL();
+  };
   //TODO: Fetch the images from the API
   const getAIImages = () => {
-    setAIgeneration({
-      images: [image, a],
-      description: ["With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow. Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.", "Image 2"],
-    });
+    let images = [];
+    const getImages = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}ai/image_generation/`,
+          {
+            prompt: content[0],
+          }
+        );
+        if (response.data) {
+          const image = response.data.generated_image;
+          const imageUrls = image.map((image) => arrayToImage(image));
+          console.log("Image URLs:", imageUrls);  
+          setAIgeneration({
+            images: [...imageUrls],
+            description: [],
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    const getSummary = async () => {
+
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}ai/summerize_chapter/`,
+          {
+            text: content.slice(0,3),
+          }
+        );
+        if (response.data) {
+          const summary = response.data;
+          console.log("Summary:", summary);
+          setAIgeneration({
+            images: [a],
+            description: [summary],
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching summary:", error);
+      }
+    }
+
+    getImages();
+    getSummary();
+
+    /* setAIgeneration({
+      images: images,
+      description: [
+        "With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow. Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.",
+        "Image 2",
+      ],
+    }); */
   };
 
   function GenerateCard(image, description) {

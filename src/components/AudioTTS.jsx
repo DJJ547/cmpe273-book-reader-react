@@ -1,13 +1,67 @@
-import React, { useState, useContext, useRef } from "react";
-import { TTSContext } from "./context/TTSContext";
+import React, { useState, useContext, useRef, useEffect } from "react";
+import axios from "axios";
+import { SettingsContext } from "./context/SettingsContext";
 import { AudioTTSContext } from "./context/AudioTTSContext";
 import ReactPlayer from "react-player";
 
 export default function AudioTTS() {
-  const audio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  const [audioUrl, setAudioUrl] = useState([]);
+  const [paragraphTimings, setParagraphTimings] = useState(null);
   const { isPlaying, setIsPlaying, AudioRef, dropdown, setDropdown } =
     useContext(AudioTTSContext);
-  const { bookcover } = useContext(TTSContext);
+  const { Bookinfo, call_back_get_highlighted_paragraph } = useContext(SettingsContext);
+  const bookcover = Bookinfo.book_cover;
+  const content = Bookinfo.content;
+
+  // Fetch the audio for the current paragraph
+  useEffect(() => {
+    const fetchAudio = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/reading/audio/tts_stream/`,
+          {
+            paragraphs: content,
+          },
+          { responseType: "blob" }
+        ); 
+
+        // Create a Blob URL for ReactPlayer
+        const blobUrl = URL.createObjectURL(response.data);
+        setAudioUrl(blobUrl);
+        //get the response header X-Paragraph-Timings
+        const timings = JSON.parse(response.headers["x-paragraph-timings"]);
+
+        setParagraphTimings(timings);
+      } catch (error) {
+        console.error("Error fetching audio:", error);
+      }
+    };
+
+    if (content.length > 0) {
+      fetchAudio();
+    }
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+    };
+  }, [content]);
+
+  const handleProgress = (state) => {
+    const currentTime = state.playedSeconds * 1000;
+    if (!paragraphTimings) return;
+    if (!isPlaying){
+      call_back_get_highlighted_paragraph(null);
+      return;
+    }
+    for (let i = 0; i < paragraphTimings.length; i++) {
+      if (currentTime >= paragraphTimings[i].start && currentTime <= paragraphTimings[i].end) {
+        call_back_get_highlighted_paragraph(i);
+        break;
+      }
+    }
+  };
   return (
     <div className="audio-tts">
       <h5 className="text-lg font-semibold text-black">Audio TTS</h5>
@@ -68,12 +122,13 @@ export default function AudioTTS() {
           </div>
         </div>
 
-        {/* audio player */}
+        {/* Audio Player */}
         <ReactPlayer
           ref={AudioRef}
-          url={audio}
+          url={audioUrl}
           controls={true}
-          isPlaying={isPlaying}
+          playing={isPlaying}
+          onProgress={handleProgress}
           onPause={() => setIsPlaying(false)}
           onPlay={() => setIsPlaying(true)}
           width="100%"

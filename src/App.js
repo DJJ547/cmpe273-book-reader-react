@@ -1,6 +1,6 @@
 // src/App.js
 import React from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import {Route, Routes, useLocation, useParams } from "react-router-dom";
 import Navbar from "./components/pageLayout/Navbar";
 import MainPage from "./components/pageLayout/MainPage";
 import SearchPage from "./components/pageLayout/SearchPage";
@@ -23,11 +23,14 @@ import TestGetBookContent from "./components/test/TestGetBookContent";
 
 export default function App() {
   const location = useLocation();
+  const hideNavbar = location.pathname.includes('/chapter');
   return (
     <div>
-      {location.pathname !== "/readingpage" && <Navbar />}
+      {!hideNavbar && <Navbar />}
 
       <Routes>
+        {/* <Route path="/test" element={<Test />} /> */}
+        <Route path="/book/:book/chapter/:chapterNumber" element={<Reader />} />
         {/* <Route path="/test" element={<Test />} /> */}
         <Route path="/" element={<MainPage />} />
         <Route path="/search" element={<SearchPage />} />

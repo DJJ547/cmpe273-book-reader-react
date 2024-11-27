@@ -1,13 +1,17 @@
 import React, { useEffect } from "react";
 import { useState, useRef } from "react";
+import axios from "axios";
 import "../assets/css/SideBar.css";
 import "../assets/css/tooltip.css";
 
-export default function TableofContents({ TOC, current_chapter }) {
+export default function TableofContents({current_chapter, book }) {
   const [drawer, setDrawer] = useState(false);
   const drawerRef = useRef(null);
   const toggleDrawer = () => setDrawer(!drawer);
   const currentChapterRef = useRef(null);
+
+  //Table of contents
+  const [TOC, setTOC] = useState([]);
 
   //close drawer when clicked outside
   useEffect(() => {
@@ -21,12 +25,23 @@ export default function TableofContents({ TOC, current_chapter }) {
       document.removeEventListener("click", handleClick);
     };
   }, []);
-
   useEffect(() => {
     if (currentChapterRef.current) {
       currentChapterRef.current.scrollIntoView({block: "center" });
     }
   }, [drawer]);
+
+  //API call: get the table of contents
+  useEffect(() => {
+    axios
+      .get(`/reading/book/${book}/table_of_contents`)
+      .then((response) => {
+        setTOC(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [book]);
 
   return (
     <div ref={drawerRef} className="tooltip">
@@ -57,7 +72,7 @@ export default function TableofContents({ TOC, current_chapter }) {
             ? "animate-fade-in-slide-up-from-bottom"
             : "animate-fade-in-slide-up"
         } ${
-          window.innerWidth < 768 ? "w-full h-[70vh]" : "w-80 h-[70vh]"
+          window.innerWidth < 768 ? "w-full h-[70vh]" : "w-96 h-[70vh]"
         } transition-all duration-300`}
         >
           <div>
@@ -108,7 +123,7 @@ export default function TableofContents({ TOC, current_chapter }) {
               <li key={index} className="mb-2" ref={index + 1 === current_chapter ? currentChapterRef : null}>
                 <a
                   /* TO DO: change the link address to correspond correct link */
-                  href={`#${chapter}`}
+                  href={`/book/${encodeURIComponent(book)}/chapter/${index+1}`}
                   className={`${index+1 === current_chapter ? 'text-red-600': 'text-gray-500'} overflow-x-auto dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:underline`}
                 >
                   {index+1}. {chapter}
