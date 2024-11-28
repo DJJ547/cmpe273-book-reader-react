@@ -215,19 +215,19 @@ const Library = () => {
   const handleCardMoreOptionsClick = (option, book) => {
     if (activeMenuItem.History) {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "remove") {
         removeBookFromHistory(book.book_id);
       }
     } else if (activeMenuItem.Wishlist) {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "remove") {
         removeBookFromWishlist(book.book_id);
       }
     } else {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "move") {
         setCurrentBook(book);
         const associatedShelves = allShelvesWithBooks
