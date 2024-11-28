@@ -140,30 +140,6 @@ const TestGoogleAuth = () => {
                   ref={dropdownRef} // Attach ref to the dropdown
                   className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50"
                 >
-                  <a
-                    href="/profile"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    Profile
-                  </a>
-                  <a
-                    href="/book-lists"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    My Reading Lists
-                  </a>
-                  <a
-                    href="/history"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    My History
-                  </a>
-                  <a
-                    href="/account"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    My Account
-                  </a>
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"

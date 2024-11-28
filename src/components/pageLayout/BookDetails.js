@@ -44,12 +44,13 @@ export const calculateMeanRating = (reviews) => {
 };
 
 const BookDetails = () => {
-  const { user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [currentChapter, setCurrentChapter] = useState(0);
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [reviews, setReviews] = useState([]);
-  const { id } = useParams();
+  const { book_id } = useParams();
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("query");
   const [book, setBook] = useState(null);
@@ -75,7 +76,7 @@ const BookDetails = () => {
   };
   const fetchBook = async () => {
     try {
-      const response = await fetch(`/main/books/with-genres/${id}/`);
+      const response = await fetch(`/main/books/with-genres/${book_id}/`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -90,7 +91,7 @@ const BookDetails = () => {
   const fetchAddedToLibrary = async () => {
     try {
       const response = await axios.get(
-        `/library/get_shelves_with_current_book/?user_id=${user.id}&book_id=${id}`
+        `/library/get_shelves_with_current_book/?user_id=${user.id}&book_id=${book_id}`
       );
       if (response.data.result) {
         setIsBookInShelf(response.data.result);
@@ -139,6 +140,19 @@ const BookDetails = () => {
     }
   };
 
+  const fetchCurrentBookChapter = async () => {
+    try {
+      const response = await axios.get(
+        `/library/get_current_book_history/?user_id=${user.id}&book_id=${book_id}`
+      );
+      if (response.data.result) {
+        setCurrentChapter(response.data.data.current_chapter);
+      }
+    } catch (error) {
+      console.error("Error adding book to wishlist:", error);
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
@@ -148,8 +162,9 @@ const BookDetails = () => {
 
     fetchBook();
     fetchAddedToLibrary();
+    fetchCurrentBookChapter();
     return () => window.removeEventListener("resize", handleResize);
-  }, [id]);
+  }, [book_id]);
 
   if (!book) return <Typography>Loading...</Typography>;
 
@@ -159,7 +174,7 @@ const BookDetails = () => {
   };
 
   const handleReadBook = () => {
-    navigate(`/readingpage/${id}`);
+    navigate(`/book/${book_id}/${book.book_name}/chapter/${currentChapter}`);
   };
 
   const handleChange = (event, newValue) => {
@@ -173,7 +188,7 @@ const BookDetails = () => {
 
   const handleWriteReview = () => {
     const newReview = {
-      book_id: id,
+      book_id: book_id,
       user_id: 1,
       review: reviewComment,
       rating: rating,
@@ -262,20 +277,23 @@ const BookDetails = () => {
               size="large"
               style={{ marginBottom: "20px" }}
             />
-
-            <Typography
-              variant="body2"
-              style={{ fontWeight: "bold", marginTop: "10px" }}
-            >
-              Your Rating: {rating} / 5
-            </Typography>
+            {isAuthenticated && (
+              <Typography
+                variant="body2"
+                style={{ fontWeight: "bold", marginTop: "10px" }}
+              >
+                Your Rating: {rating} / 5
+              </Typography>
+            )}
             {/* Editable Rating */}
-            <Rating
-              value={rating}
-              onChange={(_, newValue) => setRating(newValue)}
-              size="large"
-              style={{ marginBottom: "20px" }}
-            />
+            {isAuthenticated && (
+              <Rating
+                value={rating}
+                onChange={(_, newValue) => setRating(newValue)}
+                size="large"
+                style={{ marginBottom: "20px" }}
+              />
+            )}
 
             <Grid2 container spacing={2} style={{ marginTop: "20px" }}>
               <Grid2 item xs={12} sm="auto">
@@ -289,69 +307,74 @@ const BookDetails = () => {
                   Read
                 </Button>
               </Grid2>
-              <Grid2 item xs={12} sm="auto">
-                <Button
-                  size="large"
-                  variant="outlined"
-                  color="secondary"
-                  fullWidth={isMobile}
-                  onClick={handleAddToLibrary}
-                >
-                  {isBookInShelf ? "Remove from Libary" : " Add to Library"}
-                </Button>
-              </Grid2>
-              <Grid2 item xs={12} sm="auto">
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="success"
-                  fullWidth={isMobile}
-                  onClick={() => setOpenModal(true)} // Open modal on click
-                >
-                  Write a Review
-                </Button>
-              </Grid2>
-
-              <Grid2 item xs={12} sm="auto">
-                <Button
-                  color="info"
-                  onClick={handleAddToWishlist}
-                  size="large"
-                  startIcon={
-                    isInWishlist ? (
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="rLq5qb"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M17 3H7C5.8965 3 5.01075 3.8955 5.01075 5L5 21L12 18L19 21V5C19 3.8955 18.1045 3 17 3ZM10.4228 14.2L6.74775 10.525L8.2325 9.04025L10.4228 11.2305L15.8573 5.796L17.342 7.28075L10.4228 14.2Z"
-                        ></path>
-                      </svg>
-                    ) : (
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="rLq5qb"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M7 3H17C18.1045 3 19 3.8955 19 5V21L12 18L5 21L5.01075 5C5.01075 3.8955 5.8965 3 7 3ZM12 15.824L17 18V5H7V18L12 15.824ZM13 7V9H15V11H13V13H11V11H9V9H11V7H13Z"
-                        ></path>
-                      </svg>
-                    )
-                  }
-                >
-                  {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-                </Button>
-              </Grid2>
+              {isAuthenticated && (
+                <Grid2 item xs={12} sm="auto">
+                  <Button
+                    size="large"
+                    variant="outlined"
+                    color="secondary"
+                    fullWidth={isMobile}
+                    onClick={handleAddToLibrary}
+                  >
+                    {isBookInShelf ? "Remove from Libary" : " Add to Library"}
+                  </Button>
+                </Grid2>
+              )}
+              {isAuthenticated && (
+                <Grid2 item xs={12} sm="auto">
+                  <Button
+                    size="large"
+                    variant="contained"
+                    color="success"
+                    fullWidth={isMobile}
+                    onClick={() => setOpenModal(true)} // Open modal on click
+                  >
+                    Write a Review
+                  </Button>
+                </Grid2>
+              )}
+              {isAuthenticated && (
+                <Grid2 item xs={12} sm="auto">
+                  <Button
+                    color="info"
+                    onClick={handleAddToWishlist}
+                    size="large"
+                    startIcon={
+                      isInWishlist ? (
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="rLq5qb"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M17 3H7C5.8965 3 5.01075 3.8955 5.01075 5L5 21L12 18L19 21V5C19 3.8955 18.1045 3 17 3ZM10.4228 14.2L6.74775 10.525L8.2325 9.04025L10.4228 11.2305L15.8573 5.796L17.342 7.28075L10.4228 14.2Z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="rLq5qb"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M7 3H17C18.1045 3 19 3.8955 19 5V21L12 18L5 21L5.01075 5C5.01075 3.8955 5.8965 3 7 3ZM12 15.824L17 18V5H7V18L12 15.824ZM13 7V9H15V11H13V13H11V11H9V9H11V7H13Z"
+                          ></path>
+                        </svg>
+                      )
+                    }
+                  >
+                    {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                  </Button>
+                </Grid2>
+              )}
             </Grid2>
           </CardContent>
         </Grid2>
@@ -402,7 +425,7 @@ const BookDetails = () => {
             book.chapters.map((chapter, index) => (
               <ListItem button key={index}>
                 <Link
-                  to={`/readingpage/${id}&chapter=${chapter.chapter_number}`}
+                  to={`/book/${book_id}/${book.book_name}/chapter/${chapter.chapter_number}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <ListItemText primary={`${chapter.chapter_title}`} />
@@ -468,7 +491,7 @@ const BookDetails = () => {
       </Box>
 
       <RemoveShelfModal
-        id={id}
+        id={book_id}
         isOpen={isRemoveModelOpen}
         onClose={() => {
           setIsRemoveModelOpen(false);
@@ -478,7 +501,7 @@ const BookDetails = () => {
       />
 
       <ShelfModal
-        id={id}
+        id={book_id}
         isOpen={isShelfModelOpen}
         onClose={() => {
           setIsShelfModelOpen(false);

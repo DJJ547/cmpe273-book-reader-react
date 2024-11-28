@@ -28,25 +28,22 @@ const Login = () => {
     const userObject = jwtDecode(response.credential);
     console.log("Logged in user:", userObject);
     // Implement your login logic, e.g., store user information, redirect, etc.
+    googleLogin(userObject);
   };
 
   // Function to handle Google login failure
   const handleGoogleLoginFailure = (error) => {
     console.log("Google login failed:", error);
+    setError("Google login failed:", error);
+    navigate("/auth/login");
   };
 
   // Function to handle regular login
-  const handleLogin = () => {
+  const handleBuiltInLogin = () => {
     // e.preventDefault();
     // Implement your login logic, e.g., authenticate against your backend
     builtInLogin();
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/"); // Redirect to home if already logged in
-    }
-  }, [isAuthenticated, navigate]);
 
   //===================================== API requests ==========================================
   const builtInLogin = async () => {
@@ -62,6 +59,7 @@ const Login = () => {
           email: userData.email,
           first_name: userData.first_name,
           last_name: userData.last_name,
+          is_google: false,
         };
         login(user);
         navigate("/");
@@ -70,6 +68,37 @@ const Login = () => {
       setError(error.message);
     }
   };
+
+  const googleLogin = async (obj) => {
+    try {
+      const response = await axios.post(`/auth/google_login/`, {
+        email: obj.email,
+        first_name: obj.given_name,
+        last_name: obj.family_name,
+      });
+      if (response.status === 200) {
+        const user = {
+          id: response.data.user_id,
+          email: obj.email,
+          first_name: obj.given_name,
+          last_name: obj.family_name,
+          avatar: obj.picture,
+          is_google: true,
+        };
+        login(user);
+        navigate("/");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  //=======================================UseEffect==========================================
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="login-container">
@@ -103,7 +132,7 @@ const Login = () => {
             Login to Your Account
           </Header>
           <Segment>
-            <Form size="large" onSubmit={handleLogin}>
+            <Form size="large" onSubmit={handleBuiltInLogin}>
               <Form.Field>
                 <label>Email*</label>
                 <input

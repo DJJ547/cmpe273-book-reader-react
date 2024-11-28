@@ -6,7 +6,7 @@ import ReadingPage from "./ReadingPage";
 import "../index.css";
 
 export default function Reader() {
-  const { book, chapterNumber } = useParams();
+  const { book_id, book_name, chapter_id } = useParams();
   const [Bookinfo, setBookinfo] = useState({});
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Reader() {
       .get(
         `${
           process.env.REACT_APP_BACKEND_LOCALHOST
-        }reading/book/${book}/chapter/${chapterNumber}`
+        }reading/book/${book_name}/chapter/${chapter_id}`
       )
       .then((response) => {
         setBookinfo(response.data);
@@ -22,11 +22,11 @@ export default function Reader() {
       .catch((error) => {
         console.error(error);
       });
-  }, [book, chapterNumber]);
+  }, [book_name, chapter_id]);
 
   return (
     <SettingsProvider book={Bookinfo}>
-      <ReadingPage />
+      <ReadingPage book_id={book_id}/>
     </SettingsProvider>
   );
 }

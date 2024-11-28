@@ -5,6 +5,7 @@ import "./Navbar.css"; // Import the CSS file
 import "semantic-ui-css/semantic.min.css";
 
 import { useAuth } from "../../components/context/AuthContext";
+import LoginIcon from "./LoginIcon";
 
 const Navbar = () => {
   const { isAuthenticated, user } = useAuth();
@@ -132,6 +133,7 @@ const Navbar = () => {
           />
         )}
       </div>
+      <LoginIcon />
     </Menu>
   );
 };
