@@ -412,14 +412,11 @@ const Library = () => {
 
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
-      const response = await axios.post(
-        `/library/add_book_to_shelf/`,
-        {
-          user_id: user_id,
-          shelf_id: shelf_id,
-          book_id: book_id,
-        }
-      );
+      const response = await axios.post(`/library/add_book_to_shelf/`, {
+        user_id: user_id,
+        shelf_id: shelf_id,
+        book_id: book_id,
+      });
       const result = response.data.result;
       if (result) {
         const added_book = response.data.data;
@@ -454,16 +451,13 @@ const Library = () => {
       `user_id: ${user_id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
     );
     try {
-      const response = await axios.delete(
-        `/library/remove_book_from_shelf/`,
-        {
-          params: {
-            user_id: user_id,
-            shelf_id: shelf_id,
-            book_id: book_id,
-          },
-        }
-      );
+      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
+        params: {
+          user_id: user_id,
+          shelf_id: shelf_id,
+          book_id: book_id,
+        },
+      });
       const result = response.data.result;
       if (result) {
         const updatedShelves = allShelvesWithBooks.map((shelf) =>
@@ -592,7 +586,7 @@ const Library = () => {
             <p>{error}</p>
           </Message>
         )}
-        <Header style={{fontSize: "30px"}}>My Library</Header>
+        <Header style={{ fontSize: "30px" }}>My Library</Header>
         <a href="/" style={{ marginLeft: "20px", fontSize: "16px" }}>
           <Icon name="clone outline" /> More Books
         </a>
@@ -928,6 +922,18 @@ const Library = () => {
                     style={{
                       width: "250px",
                       margin: "15px",
+                      cursor: "pointer",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                    }}
+                    onClick={() => navigate(`/book/${book.book_id}`)} // Navigate to a book-specific page
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 10px rgba(0, 0, 0, 0.3)"; // Add shadow on hover
+                      e.currentTarget.style.transform = "scale(1.05)"; // Slight zoom effect
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = "none"; // Remove shadow
+                      e.currentTarget.style.transform = "scale(1)"; // Reset zoom
                     }}
                   >
                     <Card.Content>
