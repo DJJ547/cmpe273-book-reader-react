@@ -8,31 +8,21 @@ export default function AImage() {
   const content = Bookinfo.content;
 
   const [AIgeneration, setAIgeneration] = useState({
-    images: [],
-    description: [],
+    images: [a],
+    description: ['123'],
   });
-  const arrayToImage = (array) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    const imageData = ctx.createImageData(512, 512);
-
-    for (let i = 0; i < array.length; i++) {
-      for (let j = 0; j < array[i].length; j++) {
-        const pixelIndex = (i * 512 + j) * 4;
-        imageData.data[pixelIndex] = array[i][j][0]; // Red
-        imageData.data[pixelIndex + 1] = array[i][j][1]; // Green
-        imageData.data[pixelIndex + 2] = array[i][j][2]; // Blue
-        imageData.data[pixelIndex + 3] = 255; // Alpha
-      }
+  const base64ToBlobUrl = (base64) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas.toDataURL();
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/jpeg" });
+    return URL.createObjectURL(blob);
   };
-  //TODO: Fetch the images from the API
+
   const getAIImages = () => {
-    let images = [];
     const getImages = async () => {
       try {
         const response = await axios.post(
@@ -42,54 +32,49 @@ export default function AImage() {
           }
         );
         if (response.data) {
-          const image = response.data.generated_image;
-          const imageUrls = image.map((image) => arrayToImage(image));
-          console.log("Image URLs:", imageUrls);  
-          setAIgeneration({
-            images: [...imageUrls],
-            description: [],
-          });
+          const image_base64 = response.data.generated_image;
+          const imageUrls = base64ToBlobUrl(image_base64);
+          console.log("Image:", imageUrls);
+  
+          setAIgeneration((prevState) => ({
+            ...prevState,
+            images: [...prevState.images, imageUrls],
+          }));
         }
       } catch (error) {
         console.error("Error fetching images:", error);
       }
     };
-
+  
     const getSummary = async () => {
-
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_BACKEND_LOCALHOST}ai/summerize_chapter/`,
           {
-            text: content.slice(0,3),
+            text: content.slice(0, 3),
           }
         );
         if (response.data) {
           const summary = response.data;
           console.log("Summary:", summary);
-          setAIgeneration({
-            images: [a],
-            description: [summary],
-          });
+  
+          setAIgeneration((prevState) => ({
+            ...prevState,
+            description: [...prevState.description, summary],
+          }));
         }
       } catch (error) {
         console.error("Error fetching summary:", error);
       }
-    }
-
+    };
+  
+    // Call both asynchronous functions
     getImages();
     getSummary();
-
-    /* setAIgeneration({
-      images: images,
-      description: [
-        "With the rising sun, the fog gradually dispersed. The entire city of Backlund was enveloped in a golden morning glow. Klein walked out of the Blackthorn Security Company and headed to the Blackthorn Library.",
-        "Image 2",
-      ],
-    }); */
   };
+  
 
-  function GenerateCard(image, description) {
+  function GenerateCard({image, description}) {
     return (
       <div className="max-w-2xl w-3/4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto mt-4">
         <a href="#">
@@ -118,7 +103,7 @@ export default function AImage() {
         </button>
       </div>
       {AIgeneration.images.map((img, index) =>
-        GenerateCard(img, AIgeneration.description[index])
+        <GenerateCard key={index} image={img} description={AIgeneration.description[index]} />
       )}
     </div>
   );
