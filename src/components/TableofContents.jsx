@@ -137,7 +137,7 @@ export default function TableofContents({ current_chapter, book }) {
               >
                 <a
                   /* TO DO: change the link address to correspond correct link */
-                  href={`/book/${book.book_id}/${encodeURIComponent(
+                  href={`/book/${encodeURIComponent(
                     book.book_name
                   )}/chapter/${index + 1}`}
                   className={`${
