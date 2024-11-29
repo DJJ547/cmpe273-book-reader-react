@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Accordion,
   Card,
@@ -24,14 +24,6 @@ import "semantic-ui-css/semantic.min.css";
 
 const api_url = process.env.REACT_APP_BACKEND_LOCALHOST;
 
-const userData = {
-  id: 1,
-};
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify(userData));
-}
-const savedUser = JSON.parse(localStorage.getItem("user"));
-
 const filterOptions = [
   { key: "recent", text: "Recent", value: "recent" },
   { key: "name", text: "Name", value: "name" },
@@ -55,6 +47,7 @@ const shelvesMoreOptions = [
 ];
 
 const Library = () => {
+  const { user_id } = useParams();
   const navigate = useNavigate();
   const itemsPerPage = 9;
   //===================================================States======================================================
@@ -222,19 +215,19 @@ const Library = () => {
   const handleCardMoreOptionsClick = (option, book) => {
     if (activeMenuItem.History) {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "remove") {
         removeBookFromHistory(book.book_id);
       }
     } else if (activeMenuItem.Wishlist) {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "remove") {
         removeBookFromWishlist(book.book_id);
       }
     } else {
       if (option === "about") {
-        navigate(`/`);
+        navigate(`/book/${book.book_id}`);
       } else if (option === "move") {
         setCurrentBook(book);
         const associatedShelves = allShelvesWithBooks
@@ -311,7 +304,7 @@ const Library = () => {
     try {
       setLoading(true);
       const response = await axios.get(`/library/get_library_data/`, {
-        params: { user_id: savedUser.id },
+        params: { user_id: user_id },
       });
       console.log("fetched library data: ", response.data.data);
       //sync shelves data
@@ -345,8 +338,8 @@ const Library = () => {
 
   const addShelf = async () => {
     try {
-      const response = await axios.post(`/library/add_shelf/`, {
-        user_id: savedUser.id,
+      const response = await axios.post(`${api_url}library/add_shelf/`, {
+        user_id: user_id,
         shelf: {
           name: shelfName,
           icon: shelfIcon,
@@ -375,7 +368,7 @@ const Library = () => {
     try {
       console.log(shelfData);
       const response = await axios.put(`/library/edit_shelf/`, {
-        user_id: savedUser.id,
+        user_id: user_id,
         shelf: shelfData,
       });
       console.log(response.data);
@@ -399,7 +392,7 @@ const Library = () => {
     try {
       const response = await axios.delete(`/library/remove_shelf/`, {
         params: {
-          user_id: savedUser.id,
+          user_id: user_id,
           shelf_id: shelf_id,
         },
       });
@@ -419,14 +412,11 @@ const Library = () => {
 
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
-      const response = await axios.post(
-        `/library/add_book_to_shelf/`,
-        {
-          user_id: savedUser.id,
-          shelf_id: shelf_id,
-          book_id: book_id,
-        }
-      );
+      const response = await axios.post(`/library/add_book_to_shelf/`, {
+        user_id: user_id,
+        shelf_id: shelf_id,
+        book_id: book_id,
+      });
       const result = response.data.result;
       if (result) {
         const added_book = response.data.data;
@@ -458,19 +448,16 @@ const Library = () => {
 
   const removeBookFromShelf = async (shelf_id, book_id) => {
     console.log(
-      `user_id: ${savedUser.id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
+      `user_id: ${user_id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
     );
     try {
-      const response = await axios.delete(
-        `/library/remove_book_from_shelf/`,
-        {
-          params: {
-            user_id: savedUser.id,
-            shelf_id: shelf_id,
-            book_id: book_id,
-          },
-        }
-      );
+      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
+        params: {
+          user_id: user_id,
+          shelf_id: shelf_id,
+          book_id: book_id,
+        },
+      });
       const result = response.data.result;
       if (result) {
         const updatedShelves = allShelvesWithBooks.map((shelf) =>
@@ -507,7 +494,7 @@ const Library = () => {
         `/library/remove_book_from_wishlist/`,
         {
           params: {
-            user_id: savedUser.id,
+            user_id: user_id,
             book_id: book_id,
           },
         }
@@ -537,7 +524,7 @@ const Library = () => {
         `/library/remove_book_from_history/`,
         {
           params: {
-            user_id: savedUser.id,
+            user_id: user_id,
             book_id: book_id,
           },
         }
@@ -578,7 +565,7 @@ const Library = () => {
   return (
     <div
       className="wishlist-container"
-      style={{ flexGrow: 1, padding: "30px" }}
+      style={{ flexGrow: 1, padding: "10px" }}
     >
       <div style={{ display: "flex", padding: "20px", alignItems: "center" }}>
         {error && (
@@ -599,8 +586,8 @@ const Library = () => {
             <p>{error}</p>
           </Message>
         )}
-        <Header style={{fontSize: "30px"}}>My Library</Header>
-        <a style={{ marginLeft: "20px", fontSize: "16px" }}>
+        <Header style={{ fontSize: "30px" }}>My Library</Header>
+        <a href="/" style={{ marginLeft: "20px", fontSize: "16px" }}>
           <Icon name="clone outline" /> More Books
         </a>
       </div>
@@ -935,6 +922,18 @@ const Library = () => {
                     style={{
                       width: "250px",
                       margin: "15px",
+                      cursor: "pointer",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                    }}
+                    onClick={() => navigate(`/book/${book.book_id}`)} // Navigate to a book-specific page
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 10px rgba(0, 0, 0, 0.3)"; // Add shadow on hover
+                      e.currentTarget.style.transform = "scale(1.05)"; // Slight zoom effect
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = "none"; // Remove shadow
+                      e.currentTarget.style.transform = "scale(1)"; // Reset zoom
                     }}
                   >
                     <Card.Content>

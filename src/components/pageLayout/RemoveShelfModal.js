@@ -11,13 +11,7 @@ import { iconOptions, colorOptions } from "../../utils/utils";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-const userData = {
-  id: 1,
-};
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify(userData));
-}
-const savedUser = JSON.parse(localStorage.getItem("user"));
+import { useAuth } from "../context/AuthContext";
 
 export const RemoveShelfModal = ({
   isOpen,
@@ -26,11 +20,12 @@ export const RemoveShelfModal = ({
   data,
   fetchAddedToLibrary,
 }) => {
+  const { user } = useAuth();
   const removeBookFromShelf = async (shelf_id_input) => {
     try {
       const response = await axios.delete(`/library/remove_book_from_shelf/`, {
         params: {
-          user_id: userData.id,
+          user_id: user.id,
           shelf_id: shelf_id_input,
           book_id: id,
         },
