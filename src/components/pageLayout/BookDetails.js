@@ -174,7 +174,7 @@ const BookDetails = () => {
   };
 
   const handleReadBook = () => {
-    navigate(`/book/${book_id}/${book.book_name}/chapter/${currentChapter}`);
+    navigate(`/book/${book.book_name}/chapter/${currentChapter}`);
   };
 
   const handleChange = (event, newValue) => {
@@ -425,7 +425,7 @@ const BookDetails = () => {
             book.chapters.map((chapter, index) => (
               <ListItem button key={index}>
                 <Link
-                  to={`/book/${book_id}/${book.book_name}/chapter/${chapter.chapter_number}`}
+                  to={`/book/${book.book_name}/chapter/${chapter.chapter_number}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <ListItemText primary={`${chapter.chapter_title}`} />

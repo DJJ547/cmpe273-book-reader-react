@@ -7,14 +7,14 @@ import { openDatabase, addOrUpdateItem, getAllItems, deleteOldestItem } from "..
 import "../index.css";
 
 export default function Reader() {
-  const { book_id, book_name, chapter_id } = useParams();
+  const { book_name, chapter_id } = useParams();
   const [Bookinfo, setBookinfo] = useState({});
 
   useEffect(() => {
     const fetchChapter = async () => {
       const dbName = "BookCacheDB";
       const storeName = "chapters";
-      const key = `${book_id}-${chapter_id}`;
+      const key = `${book_name}-${chapter_id}`;
       
       try {
         const db = await openDatabase(dbName, storeName);
@@ -28,7 +28,7 @@ export default function Reader() {
         // Check if the chapter is already in cache
         const cachedChapter = allItems.find(item => item.key === key);
         if (cachedChapter) {
-          console.log(`found cached book data with book_id:${book_id} and chapter_id:${chapter_id}`)
+          console.log(`found cached book data with book_name:${book_name} and chapter_id:${chapter_id}`)
           setBookinfo(cachedChapter.value); // Use cached value
         } else {
           // Fetch from the backend if not cached
@@ -46,11 +46,11 @@ export default function Reader() {
     };
 
     fetchChapter();
-  }, [book_id, book_name, chapter_id]);
+  }, [Bookinfo.book_id, book_name, chapter_id]);
 
   return (
     <SettingsProvider book={Bookinfo}>
-      <ReadingPage book_id={book_id}/>
+      <ReadingPage book_id={Bookinfo.book_id}/>
     </SettingsProvider>
   );
 }

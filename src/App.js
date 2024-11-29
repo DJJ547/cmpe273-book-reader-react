@@ -29,7 +29,7 @@ export default function App() {
       <Routes>
         {/* <Route path="/test" element={<Test />} /> */}
         <Route
-          path="/book/:book_id/:book_name/chapter/:chapter_id"
+          path="/book/:book_name/chapter/:chapter_id"
           element={<Reader />}
         />
         <Route path="/" element={<MainPage />} />
