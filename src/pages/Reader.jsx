@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { SettingsProvider } from "../components/context/SettingsContext";
 import ReadingPage from "./ReadingPage";
+import { openDatabase, addOrUpdateItem, getAllItems, deleteOldestItem } from "../services/indexedDB";
 import "../index.css";
 
 export default function Reader() {
@@ -10,19 +11,42 @@ export default function Reader() {
   const [Bookinfo, setBookinfo] = useState({});
 
   useEffect(() => {
-    axios
-      .get(
-        `${
-          process.env.REACT_APP_BACKEND_LOCALHOST
-        }reading/book/${book_name}/chapter/${chapter_id}`
-      )
-      .then((response) => {
-        setBookinfo(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, [book_name, chapter_id]);
+    const fetchChapter = async () => {
+      const dbName = "BookCacheDB";
+      const storeName = "chapters";
+      const key = `${book_id}-${chapter_id}`;
+      
+      try {
+        const db = await openDatabase(dbName, storeName);
+        
+        // Fetch all cache items to ensure we don't exceed 50
+        const allItems = await getAllItems(db, storeName);
+        if (allItems.length >= 50) {
+          await deleteOldestItem(db, storeName); // Remove the oldest record
+        }
+
+        // Check if the chapter is already in cache
+        const cachedChapter = allItems.find(item => item.key === key);
+        if (cachedChapter) {
+          console.log(`found cached book data with book_id:${book_id} and chapter_id:${chapter_id}`)
+          setBookinfo(cachedChapter.value); // Use cached value
+        } else {
+          // Fetch from the backend if not cached
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_LOCALHOST}reading/book/${book_name}/chapter/${chapter_id}`
+          );
+          setBookinfo(response.data);
+
+          // Cache the chapter
+          await addOrUpdateItem(db, storeName, key, response.data);
+        }
+      } catch (error) {
+        console.error("Error handling cache:", error);
+      }
+    };
+
+    fetchChapter();
+  }, [book_id, book_name, chapter_id]);
 
   return (
     <SettingsProvider book={Bookinfo}>
