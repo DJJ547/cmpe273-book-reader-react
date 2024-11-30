@@ -46,11 +46,11 @@ export default function Reader() {
     };
 
     fetchChapter();
-  }, [Bookinfo.book_id, book_name, chapter_id]);
+  }, [book_name, chapter_id]);
 
   return (
     <SettingsProvider book={Bookinfo}>
-      <ReadingPage book_id={Bookinfo.book_id}/>
+      <ReadingPage/>
     </SettingsProvider>
   );
 }

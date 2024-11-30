@@ -41,6 +41,7 @@ export const SettingsProvider = ({ children, book }) => {
   };
 
   const Bookinfo = {
+    book_id: book?.book_id || -1,
     book_name: book?.book_name || '',
     book_cover: book?.book_cover || 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1723688384i/58826678.jpg',
     author: book?.author || '',

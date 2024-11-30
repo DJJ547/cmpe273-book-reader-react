@@ -5,7 +5,7 @@ import { SettingsContext } from "../components/context/SettingsContext";
 import SideBar from "../components/SideBar";
 import { useNavigate } from "react-router-dom";
 
-export default function ReadingPage({ book_id }) {
+export default function ReadingPage() {
   const navigate = useNavigate();
   const { styles, highlit_paragraph, Bookinfo } = useContext(SettingsContext);
 
@@ -15,7 +15,7 @@ export default function ReadingPage({ book_id }) {
         className="border border-gray-200 shadow px-10 py-5"
         style={styles.content}
       >
-        <TopBar book_id={book_id} navigate={navigate} />
+        <TopBar book={Bookinfo} navigate={navigate} />
         <HeaderSection
           title={Bookinfo.book_name}
           book_cover={Bookinfo.book_cover}
@@ -33,10 +33,10 @@ export default function ReadingPage({ book_id }) {
   );
 }
 
-const TopBar = ({ book_id, navigate }) => (
+const TopBar = ({ book, navigate }) => (
   <div
     className="flex items-center cursor-pointer text-base"
-    onClick={() => navigate(`/book/${book_id}`)}
+    onClick={() => navigate(`/book/${book.book_id}`)}
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
