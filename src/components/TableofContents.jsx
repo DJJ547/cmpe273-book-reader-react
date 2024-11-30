@@ -82,7 +82,7 @@ export default function TableofContents({ current_chapter, book }) {
               ? "animate-fade-in-slide-up-from-bottom"
               : "animate-fade-in-slide-up"
           } ${
-            window.innerWidth < 768 ? "w-full h-[70vh]" : "w-96 h-[70vh]"
+            window.innerWidth < 768 ? "w-full h-[70vh]" : "w-96 h-[68vh]"
           } transition-all duration-300`}
         >
           <div>

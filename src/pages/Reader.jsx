@@ -5,6 +5,7 @@ import { SettingsProvider } from "../components/context/SettingsContext";
 import ReadingPage from "./ReadingPage";
 import { openDatabase, addOrUpdateItem, getAllItems, deleteOldestItem } from "../services/indexedDB";
 import "../index.css";
+import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 export default function Reader() {
   const { book_name, chapter_id } = useParams();
@@ -36,7 +37,6 @@ export default function Reader() {
             `${process.env.REACT_APP_BACKEND_LOCALHOST}reading/book/${book_name}/chapter/${chapter_id}`
           );
           setBookinfo(response.data);
-
           // Cache the chapter
           await addOrUpdateItem(db, storeName, key, response.data);
         }
