@@ -10,11 +10,13 @@ export default function AudioTTS() {
   const { isPlaying, setIsPlaying, AudioRef, dropdown, setDropdown } =
     useContext(AudioTTSContext);
   const { Bookinfo, call_back_get_highlighted_paragraph } = useContext(SettingsContext);
+  const [loading, setLoading] = useState(false);
   const bookcover = Bookinfo.book_cover;
   const content = Bookinfo.content;
 
   // Fetch the audio for the current paragraph
   useEffect(() => {
+    setLoading(true);
     const fetchAudio = async () => {
       try {
         const response = await axios.post(
@@ -34,6 +36,8 @@ export default function AudioTTS() {
         setParagraphTimings(timings);
       } catch (error) {
         console.error("Error fetching audio:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -121,6 +125,12 @@ export default function AudioTTS() {
             )}
           </div>
         </div>
+          
+        {loading && (
+        <div className="flex justify-center mt-4">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full"></div>
+        </div>
+        )}
 
         {/* Audio Player */}
         <ReactPlayer

@@ -11,6 +11,7 @@ import {
   deleteOldestItem,
 } from "../services/indexedDB";
 import "../index.css";
+import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 export default function Reader() {
   const { isAuthenticated, user } = useAuth();

@@ -69,7 +69,7 @@ const SideBar = () => {
           }`}
           ref={bottomBarRef}
         >
-          <TableofContents current_chapter={Bookinfo.current_chapter} book={Bookinfo.book_name}/>
+          <TableofContents current_chapter={Bookinfo.current_chapter} book={Bookinfo}/>
           <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited} />
           <TTSProvider content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}>
             <AudioTTSProvider>

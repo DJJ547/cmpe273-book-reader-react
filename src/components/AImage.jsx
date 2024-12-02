@@ -1,15 +1,16 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import a from "../assets/statics/a.png";
 import { SettingsContext } from "./context/SettingsContext";
 
 export default function AImage() {
   const { Bookinfo } = useContext(SettingsContext);
   const content = Bookinfo.content;
+  const [parts, setParts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [AIgeneration, setAIgeneration] = useState({
-    images: [a],
-    description: ['123'],
+    images: [],
+    description:[],
   });
   const base64ToBlobUrl = (base64) => {
     const byteCharacters = atob(base64);
@@ -22,63 +23,82 @@ export default function AImage() {
     return URL.createObjectURL(blob);
   };
 
+  const contentDivider = (content) => {
+    const parts = [];
+    let c = content.join(' ');
+    const words = c.split(/\s+/);
+    let part = [];
+
+    words.forEach(word => {
+      if (part.join(' ').length + word.length + 1 <= 1000) {
+        part.push(word);
+      } else {
+        parts.push(part.join(' '));
+        part = [word];
+      }
+    });
+
+    if (part.length > 0) {
+      parts.push(part.join(' '));
+    }
+
+    return parts;
+  }
+
+  useEffect(() => {
+    if (content.length > 0) {
+      setParts(contentDivider(content));
+    }
+  }, [content]);
+
   const getAIImages = () => {
+    setLoading(true);
     const getImages = async () => {
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_BACKEND_LOCALHOST}ai/image_generation/`,
           {
-            prompt: content[0],
+            prompt: parts.slice(0, 5),
           }
         );
         if (response.data) {
-          const image_base64 = response.data.generated_image;
-          const imageUrls = base64ToBlobUrl(image_base64);
-          console.log("Image:", imageUrls);
-  
-          setAIgeneration((prevState) => ({
-            ...prevState,
-            images: [...prevState.images, imageUrls],
-          }));
+          const images_base64 = response.data.images;
+          if (!images_base64 || images_base64.length === 0) {
+            setLoading(false);
+            return;
+          }
+          for (let i = 0; i < images_base64.length; i++) {
+            images_base64[i] = base64ToBlobUrl(images_base64[i]);
+          }
+          const summaries = response.data.summaries;
+          if (!summaries || summaries.length === 0) {
+            setLoading(false);
+            return;
+          }
+          setAIgeneration(
+            {
+              images: images_base64,
+              description: summaries,
+            }
+          );
         }
       } catch (error) {
         console.error("Error fetching images:", error);
-      }
-    };
-  
-    const getSummary = async () => {
-      try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_LOCALHOST}ai/summerize_chapter/`,
-          {
-            text: content.slice(0, 3),
-          }
-        );
-        if (response.data) {
-          const summary = response.data;
-          console.log("Summary:", summary);
-  
-          setAIgeneration((prevState) => ({
-            ...prevState,
-            description: [...prevState.description, summary],
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching summary:", error);
+      } finally {
+        setLoading(false);
       }
     };
   
     // Call both asynchronous functions
     getImages();
-    getSummary();
   };
   
 
   function GenerateCard({image, description}) {
     return (
-      <div className="max-w-2xl w-3/4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto mt-4">
+      <div className="max-w-2xl w- bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto mt-4">
         <a href="#">
-          <img className="rounded-t-lg" src={image} alt="" />
+          <img className="rounded-lg mx-auto mt-2" src={image} alt="" />
         </a>
         <div className="p-5">
           <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
@@ -102,6 +122,11 @@ export default function AImage() {
           Generate
         </button>
       </div>
+      {loading && (
+        <div className="flex justify-center mt-4">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full"></div>
+        </div>
+      )}
       {AIgeneration.images.map((img, index) =>
         <GenerateCard key={index} image={img} description={AIgeneration.description[index]} />
       )}
