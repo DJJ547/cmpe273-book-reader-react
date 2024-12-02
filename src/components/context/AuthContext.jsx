@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     isAuthenticated: false,
     user: null,
+    loading: true,
   });
 
   useEffect(() => {
@@ -16,7 +17,13 @@ export const AuthProvider = ({ children }) => {
       setAuthState({
         isAuthenticated: true,
         user: JSON.parse(storedUser),
+        loading: false,
       });
+    } else {
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
     }
   }, []);
 
@@ -24,6 +31,7 @@ export const AuthProvider = ({ children }) => {
     setAuthState({
       isAuthenticated: true,
       user: userData,
+      loading: false,
     });
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -32,6 +40,7 @@ export const AuthProvider = ({ children }) => {
     setAuthState({
       isAuthenticated: false,
       user: null,
+      loading: false,
     });
     localStorage.removeItem("user");
   };

@@ -18,6 +18,7 @@ import {
 } from "semantic-ui-react";
 import axios from "axios";
 
+import MoveToShelvesWindow from "../components/library/MoveToShelvesWindow";
 import { getBackgroundColor } from "../utils/colorHelpers";
 import { iconOptions, colorOptions } from "../utils/utils";
 import "semantic-ui-css/semantic.min.css";
@@ -82,7 +83,7 @@ const Library = () => {
     useState(false);
 
   //Move Shelf To Another Shelf Window States
-  const [selectedShelves, setSelectedShelves] = useState([]);
+  // const [selectedShelves, setSelectedShelves] = useState([]);
   const [
     moveShelfToAnotherShelfWindowIsOpen,
     setMoveShelfToAnotherShelfWindowIsOpen,
@@ -164,53 +165,6 @@ const Library = () => {
     }
   };
 
-  //Move Shelf to Another Shelf
-  const handleMoveShelfToAnotherShelfConformClick = async () => {
-    try {
-      // Remove book from unselected shelves
-      const unselectedShelves = allShelvesWithBooks
-        .filter((shelf) => !selectedShelves.includes(shelf.id))
-        .filter((shelf) =>
-          shelf.books.some((b) => b.book_id === currentBook.book_id)
-        );
-
-      await Promise.all(
-        unselectedShelves.map((shelf) =>
-          removeBookFromShelf(shelf.id, currentBook.book_id)
-        )
-      );
-
-      // Add book to selected shelves
-      const newlySelectedShelves = selectedShelves.filter(
-        (shelfId) =>
-          !allShelvesWithBooks
-            .find((shelf) => shelf.id === shelfId)
-            .books.some((b) => b.book_id === currentBook.book_id)
-      );
-
-      await Promise.all(
-        newlySelectedShelves.map((shelfId) =>
-          addBookToShelf(shelfId, currentBook.book_id)
-        )
-      );
-      console.log("after toggle box:", allShelvesWithBooks);
-      setMoveShelfToAnotherShelfWindowIsOpen(false);
-      setSelectedShelves([]);
-      setCurrentBook(null);
-    } catch (error) {
-      console.error("Error saving shelves:", error);
-      setError("There was a problem saving the shelves.");
-    }
-  };
-
-  const handleShelfCheckboxToggle = (shelfId) => {
-    if (selectedShelves.includes(shelfId)) {
-      setSelectedShelves(selectedShelves.filter((id) => id !== shelfId));
-    } else {
-      setSelectedShelves([...selectedShelves, shelfId]);
-    }
-  };
-
   //Card More Options Click
   const handleCardMoreOptionsClick = (option, book) => {
     if (activeMenuItem.History) {
@@ -230,12 +184,12 @@ const Library = () => {
         navigate(`/book/${book.book_id}`);
       } else if (option === "move") {
         setCurrentBook(book);
-        const associatedShelves = allShelvesWithBooks
-          .filter((shelf) =>
-            shelf.books.some((b) => b.book_id === book.book_id)
-          )
-          .map((shelf) => shelf.id);
-        setSelectedShelves(associatedShelves);
+        // const associatedShelves = allShelvesWithBooks
+        //   .filter((shelf) =>
+        //     shelf.books.some((b) => b.book_id === book.book_id)
+        //   )
+        //   .map((shelf) => shelf.id);
+        // setSelectedShelves(associatedShelves);
         setMoveShelfToAnotherShelfWindowIsOpen(true);
       } else if (option === "remove") {
         removeBookFromShelf(Object.values(activeMenuItem)[0].id, book.book_id);
@@ -551,15 +505,6 @@ const Library = () => {
   //==================================================Use Effect======================================================
   useEffect(() => {
     fetchLibraryData();
-    // if (error) {
-    //   // Automatically clear the error after 5 seconds
-    //   const timer = setTimeout(() => {
-    //     setError("");
-    //   }, 5000);
-
-    //   // Cleanup the timer if the component unmounts or error changes
-    //   return () => clearTimeout(timer);
-    // }
   }, []);
 
   return (
@@ -1267,68 +1212,20 @@ const Library = () => {
           </Button>
         </Modal.Actions>
       </Modal>
-      {/* Move Shelf To Another Shelf Window */}
-      <Modal
-        open={moveShelfToAnotherShelfWindowIsOpen}
-        onClose={() => setMoveShelfToAnotherShelfWindowIsOpen(false)}
-        size="tiny"
-        closeIcon
-      >
-        <Modal.Header>Edit shelves for "{currentBook?.book_name}"</Modal.Header>
-        <Modal.Content>
-          <div
-            style={{
-              maxHeight: "200px", // Limit height for scrollable content
-              overflowY: "auto", // Enable vertical scrolling
-              display: "flex", // Flexbox container
-              flexDirection: "column", // Stack items vertically
-              alignItems: "center", // Center items horizontally
-            }}
-          >
-            {allShelvesWithBooks.map((shelf) => (
-              <div
-                key={shelf.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedShelves.includes(shelf.id)}
-                  onChange={() => handleShelfCheckboxToggle(shelf.id)}
-                />
-                <label style={{ marginLeft: "10px" }}>{shelf.name}</label>
-              </div>
-            ))}
-          </div>
-        </Modal.Content>
-        <Modal.Actions
-          style={{
-            display: "flex", // Flexbox for alignment
-            justifyContent: "space-between", // Space between buttons
-            alignItems: "center", // Center buttons vertically
-          }}
-        >
-          <Button
-            onClick={() => handleCreateEditShelfClick("create")}
-            style={{ alignSelf: "flex-start" }} // Align "Create Shelf" to the left
-          >
-            Create Shelf
-          </Button>
-          <div>
-            <Button
-              onClick={() => setMoveShelfToAnotherShelfWindowIsOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button primary onClick={handleMoveShelfToAnotherShelfConformClick}>
-              Save
-            </Button>
-          </div>
-        </Modal.Actions>
-      </Modal>
+      <MoveToShelvesWindow
+        moveToShelvesWindowIsOpen={moveShelfToAnotherShelfWindowIsOpen}
+        setMoveToShelvesWindowIsOpen={setMoveShelfToAnotherShelfWindowIsOpen}
+        currentBook={currentBook}
+        setCurrentBook={setCurrentBook}
+        // selectedShelves={selectedShelves}
+        // setSelectedShelves={setSelectedShelves}
+        allShelvesWithBooks={allShelvesWithBooks}
+        handleCreateEditShelfClick={() => handleCreateEditShelfClick("create")}
+        setShelvesNumOfBooks={setShelvesNumOfBooks}
+        setAllShelvesWithBooks={setAllShelvesWithBooks}
+        setCurrentBooks={setCurrentBooks}
+        setError={setError}
+      />
       ;
     </div>
   );

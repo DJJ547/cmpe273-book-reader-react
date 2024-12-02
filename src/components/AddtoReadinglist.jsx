@@ -1,13 +1,19 @@
 import React, { useEffect } from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import MoveToShelvesWindow from "./library/MoveToShelvesWindow";
+import { SettingsContext } from "./context/SettingsContext";
 import "../assets/css/SideBar.css";
 import "../assets/css/tooltip.css";
 
 export default function AddtoReadinglist({ bookname, favorited }) {
-  // TO DO: Implement the add to reading list API request
+  const { Bookinfo } = useContext(SettingsContext);
+  const [moveToShelvesWindowIsOpen,setMoveToShelvesWindowIsOpen] = useState(false);
+  
+
   return (
     <div className="tooltip">
       <button
+      onClick={() => setMoveToShelvesWindowIsOpen(true)}
         className={`flex aspect-square w-16 items-center justify-center hover:scale-110 active:scale-95 cursor-pointer transition-transform hover:text-red-400 relative`}
       >
         <svg
@@ -42,6 +48,11 @@ export default function AddtoReadinglist({ bookname, favorited }) {
       <span className="tooltip-text">
         {favorited ? "Remove from Readinglist" : "Add to Readinglist"}
       </span>
+      <MoveToShelvesWindow
+        moveToShelvesWindowIsOpen={moveToShelvesWindowIsOpen}
+        setMoveToShelvesWindowIsOpen={setMoveToShelvesWindowIsOpen}
+        currentBook={Bookinfo}
+      />
     </div>
   );
 }
