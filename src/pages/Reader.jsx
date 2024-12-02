@@ -22,7 +22,7 @@ export default function Reader() {
     try {
       const response = await axios.put(`/library/update_book_history/`, {
         user_id: user.id,
-        book_name: Bookinfo.book_name,
+        book_name: book_name,
         chapter_id: chapter_id,
       });
 
