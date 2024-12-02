@@ -8,6 +8,7 @@ import TableofContents from "./TableofContents";
 import AddtoReadinglist from "./AddtoReadinglist";
 import TTS from "./TTS";
 import TextToImage from "./TextToImage";
+import { useAuth } from "./context/AuthContext";
 
 
 const SideBar = () => {
@@ -17,6 +18,7 @@ const SideBar = () => {
 
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(false);
   const bottomBarRef = useRef(null);
+  const { isAuthenticated } = useAuth();
 
   const toggleBottomBar = () => {
     setIsBottomBarVisible((prev) => !prev);
@@ -48,7 +50,7 @@ const SideBar = () => {
       <div className={`${nightmode ? 'text-white':'text-black' } hidden md:flex right-[0px] fixed top-2/4 -translate-y-2/4 2xl:right-[300px] xl:right-[200px] lg:right-[10px] shadow-lg rounded-lg}`}>
         <nav className="z-20 flex shrink-0 grow-0 justify-around gap-4 p-2.5 flex-col rounded-lg">
           <TableofContents current_chapter={Bookinfo.current_chapter} book={Bookinfo}/>
-          <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited}/>
+          {isAuthenticated && <AddtoReadinglist bookname={Bookinfo.book_name} favorited={Bookinfo.favorited}/>}
           <TTSProvider content={Bookinfo.content} bookcover={Bookinfo.book_cover} call_back_get_highlighted_paragraph={call_back_get_highlighted_paragraph}>
             <AudioTTSProvider>
               <TTS />
