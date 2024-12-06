@@ -120,7 +120,7 @@ const MainPage = () => {
     .sort((a, b) => b.averageRating - a.averageRating); // Sort books by rating in descending order
 
   return (
-    <div>
+    <div className="p-8">
       <div></div>
       <Typography variant={screenWidth <= 768 ? "h5" : "h4"} gutterBottom>
         Featured Books
