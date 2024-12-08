@@ -56,7 +56,7 @@ export default function Reader() {
       } else {
         // Fetch from the backend if not cached
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_LOCALHOST}reading/book/${book_name}/chapter/${chapter_id}`
+          `/reading/book/${book_name}/chapter/${chapter_id}`
         );
         setBookinfo(response.data);
 
