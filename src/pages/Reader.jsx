@@ -20,7 +20,7 @@ export default function Reader() {
 
   const updateBookHistory = async () => {
     try {
-      const response = await axios.put(`/library/update_book_history/`, {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/update_book_history/`, {
         user_id: user.id,
         book_name: book_name,
         chapter_id: chapter_id,
@@ -56,7 +56,7 @@ export default function Reader() {
       } else {
         // Fetch from the backend if not cached
         const response = await axios.get(
-          `/reading/book/${book_name}/chapter/${chapter_id}`
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/reading/book/${book_name}/chapter/${chapter_id}`
         );
         setBookinfo(response.data);
 

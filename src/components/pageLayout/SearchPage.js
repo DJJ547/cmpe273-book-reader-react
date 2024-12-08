@@ -34,7 +34,7 @@ const SearchPage = () => {
       try {
         setLoading(true); // Set loading to true before fetching
         const response = await axios.get(
-          `/main/books/with-genres/search/?query=${query}`
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/main/books/with-genres/search/?query=${query}`
         ); // Update the endpoint for search
         setBooks(response.data);
         setError(""); // Clear previous errors

@@ -38,7 +38,7 @@ export default function TableofContents({ current_chapter, book }) {
 
       try {
         const response = await axios.get(
-          `/reading/book/${encodeURIComponent(
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/reading/book/${encodeURIComponent(
             book.book_name
           )}/table_of_contents`
         );

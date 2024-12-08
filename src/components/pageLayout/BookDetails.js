@@ -76,7 +76,7 @@ const BookDetails = () => {
   };
   const fetchBook = async () => {
     try {
-      const response = await fetch(`/main/books/with-genres/${book_id}/`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_LOCALHOST}/main/books/with-genres/${book_id}/`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -91,7 +91,7 @@ const BookDetails = () => {
   const fetchAddedToLibrary = async () => {
     try {
       const response = await axios.get(
-        `/library/get_shelves_with_current_book/?user_id=${user.id}&book_id=${book_id}`
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_shelves_with_current_book/?user_id=${user.id}&book_id=${book_id}`
       );
       if (response.data.result) {
         setIsBookInShelf(response.data.result);
@@ -109,7 +109,7 @@ const BookDetails = () => {
 
   const addBookToWishlist = async () => {
     try {
-      const response = await axios.post(`/library/add_book_to_wishlist/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_wishlist/`, {
         user_id: user.id,
         book_id: book.id,
       });
@@ -124,7 +124,7 @@ const BookDetails = () => {
   const removeBookFromWishlist = async () => {
     try {
       const response = await axios.delete(
-        `/library/remove_book_from_wishlist/`,
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_wishlist/`,
         {
           params: {
             user_id: user.id,
@@ -143,7 +143,7 @@ const BookDetails = () => {
   const fetchCurrentBookChapter = async () => {
     try {
       const response = await axios.get(
-        `/library/get_current_book_history/?user_id=${user.id}&book_id=${book_id}`
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_current_book_history/?user_id=${user.id}&book_id=${book_id}`
       );
       if (response.data.result) {
         setCurrentChapter(response.data.data.current_chapter);

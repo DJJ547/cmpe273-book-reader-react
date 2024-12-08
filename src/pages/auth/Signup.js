@@ -43,7 +43,7 @@ const Signup = () => {
   // ======================API request====================================
   const builtInSignup = async () => {
     try {
-      const response = await axios.post(`/auth/signup/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/auth/signup/`, {
         email: email,
         password: password,
         first_name: firstName,

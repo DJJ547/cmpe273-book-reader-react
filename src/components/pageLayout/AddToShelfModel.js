@@ -66,7 +66,7 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
         shelfToAdd = shelves.find((shelf) => shelf.name === selectedShelf);
       }
 
-      const response = await axios.post(`/library/add_book_to_shelf/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_shelf/`, {
         user_id: user.id,
         shelf_id: shelfToAdd.id,
         book_id: id,

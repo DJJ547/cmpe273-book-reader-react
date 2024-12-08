@@ -48,7 +48,7 @@ const Login = () => {
   //===================================== API requests ==========================================
   const builtInLogin = async () => {
     try {
-      const response = await axios.post(`/auth/login/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/auth/login/`, {
         email: email,
         password: password,
       });
@@ -71,7 +71,7 @@ const Login = () => {
 
   const googleLogin = async (obj) => {
     try {
-      const response = await axios.post(`/auth/google_login/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/auth/google_login/`, {
         email: obj.email,
         first_name: obj.given_name,
         last_name: obj.family_name,

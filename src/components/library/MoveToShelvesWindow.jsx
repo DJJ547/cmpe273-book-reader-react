@@ -69,7 +69,7 @@ const MoveToShelvesWindow = ({
   //===================================API Requests==========================================
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
-      const response = await axios.post(`/library/add_book_to_shelf/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_shelf/`, {
         user_id: user.id,
         shelf_id: shelf_id,
         book_id: book_id,
@@ -100,7 +100,7 @@ const MoveToShelvesWindow = ({
 
   const removeBookFromShelf = async (shelf_id, book_id) => {
     try {
-      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
+      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_shelf/`, {
         params: {
           user_id: user.id,
           shelf_id: shelf_id,
@@ -140,7 +140,7 @@ const MoveToShelvesWindow = ({
 
   const fetchShelves = async () => {
     try {
-      const response = await axios.get(`/library/get_shelves_data`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_shelves_data`, {
         params: { user_id: user.id },
       });
       const shelvesData = response.data.data;

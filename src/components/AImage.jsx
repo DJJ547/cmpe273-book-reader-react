@@ -56,7 +56,7 @@ export default function AImage() {
     const getImages = async () => {
       try {
         const response = await axios.post(
-          `/ai/image_generation/`,
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/ai/image_generation/`,
           {
             prompt: parts.slice(0, 5),
           }

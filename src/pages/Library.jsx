@@ -257,7 +257,7 @@ const Library = () => {
   const fetchLibraryData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/library/get_library_data/`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_library_data/`, {
         params: { user_id: user_id },
       });
       console.log("fetched library data: ", response.data.data);
@@ -321,7 +321,7 @@ const Library = () => {
   const editShelf = async (shelfData) => {
     try {
       console.log(shelfData);
-      const response = await axios.put(`/library/edit_shelf/`, {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/edit_shelf/`, {
         user_id: user_id,
         shelf: shelfData,
       });
@@ -344,7 +344,7 @@ const Library = () => {
 
   const removeShelf = async (shelf_id) => {
     try {
-      const response = await axios.delete(`/library/remove_shelf/`, {
+      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_shelf/`, {
         params: {
           user_id: user_id,
           shelf_id: shelf_id,
@@ -366,7 +366,7 @@ const Library = () => {
 
   const addBookToShelf = async (shelf_id, book_id) => {
     try {
-      const response = await axios.post(`/library/add_book_to_shelf/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_shelf/`, {
         user_id: user_id,
         shelf_id: shelf_id,
         book_id: book_id,
@@ -405,7 +405,7 @@ const Library = () => {
       `user_id: ${user_id}, shelf_id: ${shelf_id}, book_id: ${book_id}`
     );
     try {
-      const response = await axios.delete(`/library/remove_book_from_shelf/`, {
+      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_shelf/`, {
         params: {
           user_id: user_id,
           shelf_id: shelf_id,
@@ -445,7 +445,7 @@ const Library = () => {
   const removeBookFromWishlist = async (book_id) => {
     try {
       const response = await axios.delete(
-        `/library/remove_book_from_wishlist/`,
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_wishlist/`,
         {
           params: {
             user_id: user_id,
@@ -475,7 +475,7 @@ const Library = () => {
   const removeBookFromHistory = async (book_id) => {
     try {
       const response = await axios.delete(
-        `/library/remove_book_from_history/`,
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_history/`,
         {
           params: {
             user_id: user_id,
