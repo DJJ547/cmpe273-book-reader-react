@@ -112,12 +112,15 @@ const MainPage = () => {
     }
     return description || "No description available";
   };
-  const sortedBooks = books
-    .map((book) => ({
-      ...book,
-      averageRating: calculateMeanRating(book.reviews),
-    }))
-    .sort((a, b) => b.averageRating - a.averageRating); // Sort books by rating in descending order
+  const sortedBooks =
+    Array.isArray(books) && books.length > 0
+      ? books
+          .map((book) => ({
+            ...book,
+            averageRating: calculateMeanRating(book.reviews),
+          }))
+          .sort((a, b) => b.averageRating - a.averageRating) // Sort books by rating in descending order
+      : [];
 
   return (
     <div className="p-8">
