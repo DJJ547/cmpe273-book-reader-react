@@ -64,7 +64,7 @@ const MainPage = () => {
     window.addEventListener("resize", handleResize);
     const fetchBooks = async () => {
       try {
-        const response = await axios.get("/main/books/with-genres/");
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_LOCALHOST}/main/books/with-genres/`);
         setBooks(response.data);
       } catch (error) {
         console.error("Error fetching books:", error);

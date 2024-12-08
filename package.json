@@ -1,7 +1,6 @@
 {
   "name": "cmpe273-book-reader",
   "version": "0.1.0",
-  "proxy": "http://localhost:8000",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
