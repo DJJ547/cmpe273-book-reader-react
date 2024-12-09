@@ -23,13 +23,16 @@ export const RemoveShelfModal = ({
   const { user } = useAuth();
   const removeBookFromShelf = async (shelf_id_input) => {
     try {
-      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_shelf/`, {
-        params: {
-          user_id: user.id,
-          shelf_id: shelf_id_input,
-          book_id: id,
-        },
-      });
+      const response = await axios.delete(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/remove_book_from_shelf/`,
+        {
+          params: {
+            user_id: user.id,
+            shelf_id: shelf_id_input,
+            book_id: id,
+          },
+        }
+      );
       if (response.data.result) {
         fetchAddedToLibrary();
       }

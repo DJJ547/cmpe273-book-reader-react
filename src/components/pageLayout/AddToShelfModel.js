@@ -18,15 +18,21 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
   const fetchShelves = async () => {
     try {
       await axios
-        .get(`/library/get_library_data/`, {
-          params: { user_id: user.id },
-        })
+        .get(
+          `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_library_data/`,
+          {
+            params: { user_id: user.id },
+          }
+        )
         .then((SUCCESS) => {
           console.log("SUCCESS", SUCCESS.data.data);
           setShelves(SUCCESS.data.data.Shelves);
         })
         .catch((e) => {
-          console.log("/library/get_library_data/ failed e", e);
+          console.log(
+            "${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_library_data/ failed e",
+            e
+          );
         });
     } catch (error) {
       console.error("Error fetching shelves data:", error);
@@ -44,14 +50,17 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
       let shelfToAdd = {};
       if (newShelfName) {
         const addShelfresponse = await axios
-          .post(`/library/add_shelf/`, {
-            user_id: user.id,
-            shelf: {
-              name: newShelfName,
-              icon: selectedIcon,
-              background_color: selectedColor,
-            },
-          })
+          .post(
+            `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_shelf/`,
+            {
+              user_id: user.id,
+              shelf: {
+                name: newShelfName,
+                icon: selectedIcon,
+                background_color: selectedColor,
+              },
+            }
+          )
           .then((SUCCESS) => {
             fetchShelves();
             shelfToAdd = { ...SUCCESS.data.data };
@@ -66,11 +75,14 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
         shelfToAdd = shelves.find((shelf) => shelf.name === selectedShelf);
       }
 
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_shelf/`, {
-        user_id: user.id,
-        shelf_id: shelfToAdd.id,
-        book_id: id,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_shelf/`,
+        {
+          user_id: user.id,
+          shelf_id: shelfToAdd.id,
+          book_id: id,
+        }
+      );
 
       if (response.data.result) {
         alert(
@@ -138,7 +150,7 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
       </div>
     ),
   }));
-
+  console.log("selectedIcon", selectedIcon);
   const selectedOption = shelves.find((shelf) => shelf.name === selectedShelf);
   return (
     <Modal open={isOpen} onClose={onClose} size="small">
@@ -210,11 +222,10 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
               fluid
               placeholder="Shelf Name"
               value={newShelfName}
-              onChange={(e) => setNewShelfName(e.target.value)}
+              onChange={(e, { value }) => setNewShelfName(value)}
               style={{ marginBottom: "20px" }}
             />
 
-            {/* Icon Dropdown */}
             <Dropdown
               disabled={selectedShelf !== ""}
               placeholder="Select an icon"
@@ -223,7 +234,8 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
               options={iconOptions.map((option) => ({
                 key: option.key,
                 value: option.value,
-                text: (
+                text: option.label, // Fallback in case `text` is not provided
+                content: (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <i
                       className="material-icons"
@@ -237,10 +249,32 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
               }))}
               value={selectedIcon}
               onChange={(e, { value }) => setSelectedIcon(value)}
+              text={
+                selectedIcon ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <i
+                      className="material-icons"
+                      style={{ fontSize: "20px", marginRight: "10px" }}
+                    >
+                      {
+                        iconOptions.find(
+                          (option) => option.value === selectedIcon
+                        )?.icon
+                      }
+                    </i>
+                    {
+                      iconOptions.find(
+                        (option) => option.value === selectedIcon
+                      )?.label
+                    }
+                  </div>
+                ) : (
+                  "Select an icon"
+                )
+              }
               style={{ marginBottom: "20px" }}
             />
 
-            {/* Color Dropdown */}
             <Dropdown
               disabled={selectedShelf !== ""}
               placeholder="Select a background color"
@@ -249,7 +283,8 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
               options={colorOptions.map((option) => ({
                 key: option.key,
                 value: option.value,
-                text: (
+                text: option.label, // Fallback in case `text` is not provided
+                content: (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <div
                       style={{
@@ -266,6 +301,30 @@ export const ShelfModal = ({ isOpen, id, onClose, fetchAddedToLibrary }) => {
               }))}
               value={selectedColor}
               onChange={(e, { value }) => setSelectedColor(value)}
+              text={
+                selectedColor ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        backgroundColor: colorOptions.find(
+                          (option) => option.value === selectedColor
+                        )?.color,
+                        borderRadius: "50%",
+                        marginRight: "10px",
+                      }}
+                    ></div>
+                    {
+                      colorOptions.find(
+                        (option) => option.value === selectedColor
+                      )?.label
+                    }
+                  </div>
+                ) : (
+                  "Select a background color"
+                )
+              }
               style={{ marginBottom: "20px" }}
             />
           </Form.Field>
