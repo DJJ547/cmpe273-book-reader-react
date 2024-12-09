@@ -179,9 +179,7 @@ const BookDetails = () => {
   };
 
   const handleReadBook = () => {
-    navigate(
-      `${process.env.REACT_APP_BACKEND_LOCALHOST}/book/${book.book_name}/chapter/${currentChapter}`
-    );
+    navigate(`/book/${book.book_name}/chapter/${currentChapter}`);
   };
 
   const handleChange = (event, newValue) => {
@@ -208,15 +206,15 @@ const BookDetails = () => {
         `${process.env.REACT_APP_BACKEND_LOCALHOST}/main/reviews/`,
         newReview
       )
-      .then((SUCCESS) => {})
+      .then((SUCCESS) => {
+        fetchBook();
+        setOpenModal(false);
+        setRating(0); // Reset rating
+        setReviewComment("");
+      })
       .catch((e) => {
         console.log("post review failed e", e);
       });
-    // Add the new review to the list (you can replace this with an API call)
-    fetchBook();
-    setOpenModal(false);
-    setRating(0); // Reset rating
-    setReviewComment(""); // Clear comment
   };
 
   return (
