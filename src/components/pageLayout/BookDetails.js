@@ -109,6 +109,26 @@ const BookDetails = () => {
     }
   };
 
+  const fetchAddedToWishList = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/get_library_data/?user_id=${user.id}`
+      );
+
+      if (
+        response.data.data.Wishlist.filter((e) => {
+          console.log("e.book_id", e.book_id);
+          return Number(e.book_id) === Number(book_id);
+        }).length !== 0
+      ) {
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      setIsInWishlist(false);
+      console.error("Error adding book to wishlist:", error);
+    }
+  };
+
   const addBookToWishlist = async () => {
     try {
       const response = await axios.post(
@@ -168,6 +188,7 @@ const BookDetails = () => {
     fetchBook();
     fetchAddedToLibrary();
     fetchCurrentBookChapter();
+    fetchAddedToWishList();
     return () => window.removeEventListener("resize", handleResize);
   }, [book_id]);
 
