@@ -65,7 +65,11 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
-      setError(error.message);
+      if (error.response && error.response.data) {
+        setError(error.response.data.error); // Display the backend's "error" message
+      } else {
+        setError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -89,7 +93,11 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
-      setError(error.message);
+      if (error.response && error.response.data) {
+        setError(error.response.data.error); // Display the backend's "error" message
+      } else {
+        setError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -104,6 +112,7 @@ const Login = () => {
     <div className="login-container">
       {error && (
         <Message
+          data-testid="error-message"
           negative
           onDismiss={() => setError("")}
           style={{
@@ -124,6 +133,7 @@ const Login = () => {
       <Grid centered>
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header
+            data-testid="header"
             as="h1"
             textAlign="center"
             className="login-header"
@@ -132,10 +142,11 @@ const Login = () => {
             Login to Your Account
           </Header>
           <Segment>
-            <Form size="large" onSubmit={handleBuiltInLogin}>
+            <Form data-testid="form" size="large" onSubmit={handleBuiltInLogin}>
               <Form.Field>
-                <label>Email*</label>
+                <label htmlFor="email">Email*</label>
                 <input
+                  id="email"
                   type="email"
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
@@ -143,8 +154,9 @@ const Login = () => {
                 />
               </Form.Field>
               <Form.Field>
-                <label>Password*</label>
+                <label htmlFor="password">Password*</label>
                 <input
+                  id="password"
                   type="password"
                   placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
@@ -162,6 +174,7 @@ const Login = () => {
             </Form>
             {/* Google Login Button */}
             <GoogleLogin
+              data-testid="google login"
               onSuccess={handleGoogleLoginSuccess}
               onError={handleGoogleLoginFailure}
             >
@@ -173,6 +186,7 @@ const Login = () => {
             </Divider>
 
             <Button
+              data-testid="signup button"
               fluid
               className="signup-button"
               style={{ marginBottom: "10px" }}

@@ -999,6 +999,7 @@ const Library = () => {
                               : ShelvesBookMoreOptions
                             ).map((option) => (
                               <Dropdown.Item
+                                data-testid={`dropdown-item-${option.value}`}
                                 onClick={() =>
                                   handleCardMoreOptionsClick(option.value, book)
                                 }
