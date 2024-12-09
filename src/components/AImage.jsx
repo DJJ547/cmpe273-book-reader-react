@@ -58,7 +58,7 @@ export default function AImage() {
         const response = await axios.post(
           `${process.env.REACT_APP_BACKEND_LOCALHOST}/ai/image_generation/`,
           {
-            prompt: parts.slice(0, 5),
+            prompt: parts.slice(0, 2),
           }
         );
         if (response.data) {
