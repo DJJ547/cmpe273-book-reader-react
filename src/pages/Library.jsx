@@ -292,7 +292,7 @@ const Library = () => {
 
   const addShelf = async () => {
     try {
-      const response = await axios.post(`${api_url}library/add_shelf/`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_shelf/`, {
         user_id: user_id,
         shelf: {
           name: shelfName,
