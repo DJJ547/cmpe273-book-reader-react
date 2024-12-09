@@ -76,7 +76,9 @@ const BookDetails = () => {
   };
   const fetchBook = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_LOCALHOST}/main/books/with-genres/${book_id}/`);
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/main/books/with-genres/${book_id}/`
+      );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -109,10 +111,13 @@ const BookDetails = () => {
 
   const addBookToWishlist = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_wishlist/`, {
-        user_id: user.id,
-        book_id: book.id,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/library/add_book_to_wishlist/`,
+        {
+          user_id: user.id,
+          book_id: book.id,
+        }
+      );
       if (response.data.result) {
         setIsInWishlist(true);
       }
@@ -174,7 +179,9 @@ const BookDetails = () => {
   };
 
   const handleReadBook = () => {
-    navigate(`/book/${book.book_name}/chapter/${currentChapter}`);
+    navigate(
+      `${process.env.REACT_APP_BACKEND_LOCALHOST}/book/${book.book_name}/chapter/${currentChapter}`
+    );
   };
 
   const handleChange = (event, newValue) => {
@@ -183,7 +190,10 @@ const BookDetails = () => {
 
   const handleBack = () => {
     if (!query) navigate(`/`);
-    else navigate(`/search?query=${query}`);
+    else
+      navigate(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/search?query=${query}`
+      );
   };
 
   const handleWriteReview = () => {
@@ -194,7 +204,10 @@ const BookDetails = () => {
       rating: rating,
     };
     axios
-      .post("/main/reviews/", newReview)
+      .post(
+        `${process.env.REACT_APP_BACKEND_LOCALHOST}/main/reviews/`,
+        newReview
+      )
       .then((SUCCESS) => {})
       .catch((e) => {
         console.log("post review failed e", e);
