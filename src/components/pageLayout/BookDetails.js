@@ -73,6 +73,8 @@ const BookDetails = () => {
     } else {
       addBookToWishlist();
     }
+
+    fetchAddedToWishList();
   };
   const fetchBook = async () => {
     try {
