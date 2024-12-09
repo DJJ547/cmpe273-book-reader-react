@@ -199,7 +199,7 @@ const BookDetails = () => {
   const handleWriteReview = () => {
     const newReview = {
       book_id: book_id,
-      user_id: 1,
+      user_id: user.id,
       review: reviewComment,
       rating: rating,
     };
